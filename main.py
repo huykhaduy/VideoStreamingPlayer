@@ -21,31 +21,22 @@
 #
 # if __name__ == "__main__":
 #     main()
-from PyQt5.QtCore import QUrl
-from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from qfluentwidgets import FluentWindow, setTheme, Theme
 
-        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.StreamPlayback)
+from app.view.main_window import MainWindow
 
-        self.videoWidget = QVideoWidget()
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
-        self.setCentralWidget(self.videoWidget)
-
-        self.mediaPlayer.setVideoOutput(self.videoWidget)
-
-        url = 'https://web.lotuscdn.vn/2024/1/8/89a826e1b25444ed6901435f92388d26_1704675063636-vcsi47dfxd.mp4/360.m3u8'
-        self.mediaPlayer.setMedia(QMediaContent(QUrl(url)))
-
-        self.mediaPlayer.play()
-
-if __name__ == "__main__":
-    import sys
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+app = QApplication(sys.argv)
+app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+setTheme(Theme.DARK)
+window = MainWindow()
+window.show()
+app.exec_()

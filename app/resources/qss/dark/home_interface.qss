@@ -1,0 +1,31 @@
+HomeInterface, ToolBar, #view {
+    background-color: transparent;
+}
+
+QScrollArea {
+    border: none;
+    background-color: transparent;
+}
+
+ToolBar > StrongBodyLabel {
+    color: black;
+}
+
+ToolBar > CaptionLabel {
+    color: rgb(95, 95, 95);
+}
+
+TitleLabel,
+StrongBodyLabel {
+    color: black;
+}
+
+VideoCard > #titleLabel{
+    font: 14px 'Segoe UI SemiBold', 'Microsoft YaHei SemiBold';
+    color: white;
+}
+
+VideoCard > #subtitleLabel{
+    color: #b8b8b8;
+    font-size: 12px;
+}
