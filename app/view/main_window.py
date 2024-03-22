@@ -9,6 +9,8 @@ from app.view.player_interface import PlayerInterface
 
 
 class MainWindow(FluentWindow):
+    instance = None
+
     def __init__(self):
         super().__init__()
         self.initWindow()
@@ -30,4 +32,9 @@ class MainWindow(FluentWindow):
 
     def __initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, "Home", NavigationItemPosition.SCROLL)
-        self.addSubInterface(self.playerInterface, FIF.PLAY, "Media", NavigationItemPosition.SCROLL)
+        self.stackedWidget.addWidget(self.playerInterface)
+
+    def openVideoPlayer(self):
+        self.playerInterface.setVideo("https://web.lotuscdn.vn/2024/1/8/89a826e1b25444ed6901435f92388d26_1704675063636-vcsi47dfxd.mp4/720.m3u8")
+        self.switchTo(self.playerInterface)
+

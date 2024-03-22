@@ -6,13 +6,13 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QLabel, QSizePolicy
 from qfluentwidgets import ScrollArea, PushButton, ImageLabel, TextWrap, FlowLayout
 
 from app.common.style_sheet import StyleSheet
+import app.view.main_window as main
 
 
 class VideoCard(QWidget):
-    def __init__(self, onClick=None, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.__initWidget()
-        self.onClick = onClick
 
     def __initWidget(self):
         # Init
@@ -44,17 +44,15 @@ class VideoCard(QWidget):
         # self.clicked.connect(self.__onClicked)
 
     def mousePressEvent(self, event):
-        if self.onClick is not None:
-            self.onClick()
+        main.MainWindow.instance.openVideoPlayer()
 
 
 class HomeInterface(ScrollArea):
-    def __init__(self, openPlayer=None):
+    def __init__(self):
         super().__init__()
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         StyleSheet.HOME_INTERFACE.apply(self)
 
-        self.openPlayer = openPlayer
         self.__initWget()
 
     def __initWget(self):
@@ -67,7 +65,7 @@ class HomeInterface(ScrollArea):
         self.setObjectName('browseInterface')
 
         for i in range(0, 10):
-            self.videoCard = VideoCard(self.openPlayer)
+            self.videoCard = VideoCard()
             self.layout.addWidget(self.videoCard)
 
 
