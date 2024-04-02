@@ -25,9 +25,9 @@ import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
-from qfluentwidgets import FluentWindow, setTheme, Theme
+from qfluentwidgets import setTheme, Theme
 
-from app.view.main_window import MainWindow
+from main_window import MainWindow
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
@@ -37,6 +37,7 @@ QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 setTheme(Theme.DARK)
+
 MainWindow.instance = MainWindow()
 MainWindow.instance.show()
 app.exec_()
