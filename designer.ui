@@ -7,36 +7,72 @@
     <x>0</x>
     <y>0</y>
     <width>903</width>
-    <height>389</height>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Hello world</string>
   </property>
-  <widget class="PushButton" name="button1">
+  <widget class="QVideoWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
-     <x>370</x>
-     <y>90</y>
-     <width>121</width>
-     <height>41</height>
+     <x>10</x>
+     <y>10</y>
+     <width>881</width>
+     <height>361</height>
     </rect>
-   </property>
-   <property name="text">
-    <string>Tăng count</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label1">
+  <widget class="PushButton" name="playButton">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>180</y>
-     <width>101</width>
-     <height>16</height>
+     <x>410</x>
+     <y>410</y>
+     <width>93</width>
+     <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>Counter: 0</string>
+    <string>Play</string>
+   </property>
+  </widget>
+  <widget class="PushButton" name="prevButton">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>410</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Previous</string>
+   </property>
+  </widget>
+  <widget class="PushButton" name="nextButton">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>410</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Next</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="slider">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>380</y>
+     <width>841</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
    </property>
   </widget>
  </widget>
@@ -44,7 +80,13 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>qfluentwidgets</header>
+   <header location="global">qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>QVideoWidget</class>
+   <extends>QWidget</extends>
+   <header>PyQt5.QtMultimediaWidgets</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
