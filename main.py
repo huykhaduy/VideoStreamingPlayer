@@ -36,7 +36,7 @@ QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
-setTheme(Theme.DARK)
+setTheme(Theme.LIGHT)
 
 MainWindow.instance = MainWindow()
 MainWindow.instance.show()
