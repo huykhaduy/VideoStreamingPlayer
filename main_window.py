@@ -32,9 +32,11 @@ class MainWindow(QWidget):
         self.mediaPlayer.stateChanged.connect(self.mediaStateChanged)
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
+        self.mediaPlayer.mediaStatusChanged.connect(self.handle_state_change)
         self.mediaPlayer.error.connect(self.handleError)
 
-        self.slider.sliderMoved.connect(self.changeSiderValue)
+        self.slider.sliderPressed.connect(self.beforeChangeSlider)
+        self.slider.sliderReleased.connect(self.changeSiderValue)
 
     def play(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
@@ -42,11 +44,20 @@ class MainWindow(QWidget):
         else:
             self.mediaPlayer.play()
 
+    def beforeChangeSlider(self):
+        self.prevMediaState = self.mediaPlayer.state()
+        self.mediaPlayer.pause()
+        self.mediaPlayer.positionChanged.disconnect(self.positionChanged)
+
     def changeSiderValue(self):
         print("Sider change"+str(self.slider.value()))
-        self.mediaPlayer.setPosition(self.slider.value())
+        self.mediaPlayer.setPosition(1 if self.slider.value() == 0 else self.slider.value())
+        self.mediaPlayer.positionChanged.connect(self.positionChanged)
+        if self.prevMediaState == QMediaPlayer.PlayingState:
+            self.mediaPlayer.play()
 
     def mediaStateChanged(self, state):
+        print("State change"+str(state))
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playButton.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPause))
@@ -55,6 +66,8 @@ class MainWindow(QWidget):
                 self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def positionChanged(self, position):
+        print("Position change"+str(position))
+        print("Media state"+str(self.mediaPlayer.state()))
         self.slider.setValue(position)
 
     def durationChanged(self, duration):
@@ -64,8 +77,16 @@ class MainWindow(QWidget):
         self.mediaPlayer.setPosition(position)
 
     def handleError(self):
+        print("Error: " + self.mediaPlayer.errorString())
         self.playButton.setEnabled(False)
 
+    def handle_state_change(self, state):
+        if state == QMediaPlayer.LoadingMedia:
+            print('loading')
+        if state == QMediaPlayer.LoadedMedia:
+            print('loading finished')
+            self.mediaPlayer.play()
+            self.setPosition(1)
 
 
 
