@@ -1,16 +1,19 @@
 from typing import Self
 
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget, QGraphicsView, QSlider, QStyle, QHBoxLayout, \
-    QLineEdit
+    QLineEdit, QPushButton
 from qfluentwidgets import PushButton
+import resources
+
+# Cách dùng resources: https://www.pythonguis.com/tutorials/qresource-system/
 
 
 class ChildLayout(QVBoxLayout):
     def __init__(self, communication):
         super().__init__()
         self.communication = communication
-        self.previousText = ""
         self.__initWidget()
 
     def __initWidget(self):
@@ -33,6 +36,11 @@ class MainWindow(QWidget):
         # Tạo layout chính cho ứng dụng
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
+
+        self.button = PushButton("Click me")
+        icon = QIcon(":/icons/cat.png")
+        self.button.setIcon(icon)
+        self.layout.addWidget(self.button)
 
         # Khởi tạo left layout
         self.leftLayout = ChildLayout(self.communication)
