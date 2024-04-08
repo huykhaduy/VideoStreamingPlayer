@@ -24,7 +24,7 @@ class VideoInterface(QWidget):
         self.mediaPlayer = MediaPlayer(self)
         self.mediaPlayer.setVideoOutput(self.videoWidget)
         self.mediaPlayer.setMedia(QMediaContent(
-            QUrl("https://web.lotuscdn.vn/2024/1/8/89a826e1b25444ed6901435f92388d26_1704675063636-vcsi47dfxd.mp4/720.m3u8")))
+            QUrl("https://d3l1s92l55csfd.cloudfront.net/test/music_video.m3u8")))
 
         self.playBar = PlayBar()
         self.playBar.setMediaPlayer(self.mediaPlayer)
