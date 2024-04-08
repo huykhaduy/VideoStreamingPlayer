@@ -1,0 +1,2 @@
+
+app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
