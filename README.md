@@ -7,3 +7,6 @@ Install lib:
      pip install pyqt5 pyqt5-tools
 
 Run: python main.py
+
+Window: Install LAVFilters
+Linux: Install GStreamer
