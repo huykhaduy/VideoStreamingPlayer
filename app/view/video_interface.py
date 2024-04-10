@@ -13,6 +13,7 @@ from app.component.play_bar import PlayBar, FullScreenButton, MyStandardMediaPla
 class VideoInterface(QWidget):
     def __init__(self):
         super().__init__()
+        self.setObjectName("videoInterface")
         self.__initWidget()
 
     def __initWidget(self):
