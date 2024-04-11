@@ -1,40 +1,63 @@
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtCore import pyqtSlot, Qt
-from qfluentwidgets import PushButton, FluentWindow, ImageLabel, NavigationInterface, NavigationItemPosition, \
-    SplitFluentWindow, setFont
-from app.view.home_interface import HomeInterface
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QVBoxLayout
+from qfluentwidgets import (NavigationAvatarWidget, NavigationItemPosition, MessageBox, FluentWindow,
+                            SplashScreen)
+from PyQt5.QtWidgets import QApplication
+
+from PyQt5.QtCore import QUrl, QSize
+
+
+from app.view.video_interface import VideoInterface
+from app.view.download_interface import DownloadInterface
+
 from qfluentwidgets import FluentIcon as FIF
 
-from app.view.player_interface import PlayerInterface
-
-
 class MainWindow(FluentWindow):
-    instance = None
-
-    def __init__(self):
+    def __init__(self, communication):
         super().__init__()
+        self.communication = communication
         self.initWindow()
-        self.homeInterface = HomeInterface()
-        self.playerInterface = PlayerInterface()
-        self.__initNavigation()
+
+
+        self.videoInterface = VideoInterface()
+        self.downloadInterface = DownloadInterface()
+
+
+        # enable acrylic effect
+        self.navigationInterface.setAcrylicEnabled(True)
+
+
+        self.__initWidget()
+
+        self.splashScreen.finish()
+
+
 
     def initWindow(self):
-        self.setWindowTitle('Music video app')
-        self.resize(1140, 780)
-        self.setMinimumWidth(860)
-        self.navigationInterface.setMenuButtonVisible(True)
+        # self.resize(960, 780)
+        self.setMinimumWidth(760)
+        self.__setTitlebar()
+
+
+        # create splash screen
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(106, 106))
+        self.splashScreen.raise_()
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
-        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+        self.move(w//2 - self.width()//2, h//2 - self.height()//2)
         self.show()
         QApplication.processEvents()
 
-    def __initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.HOME, "Home", NavigationItemPosition.SCROLL)
-        self.stackedWidget.addWidget(self.playerInterface)
+    def __initWidget(self):
+        pos = NavigationItemPosition.SCROLL
+        self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video Interface", pos)
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD,"Download Interface", pos)
 
-    def openVideoPlayer(self):
-        self.playerInterface.setVideo("https://web.lotuscdn.vn/2024/1/8/89a826e1b25444ed6901435f92388d26_1704675063636-vcsi47dfxd.mp4/720.m3u8")
-        self.switchTo(self.playerInterface)
+
+
+    def __setTitlebar(self):
+        self.setWindowTitle("Your Video Player")
+        self.setWindowIcon(QIcon(":/icons/app-icon.png"))
 

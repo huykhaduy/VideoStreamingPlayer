@@ -1,0 +1,12 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="styles">
+<!--        <file>qss/light/gallery_interface.qss</file>-->
+    </qresource>
+    <qresource prefix="icons">
+        <file alias="app-icon.png">icons/app-icon.png</file>
+    </qresource>
+    <qresource prefix="images">
+
+    </qresource>
+</RCC>

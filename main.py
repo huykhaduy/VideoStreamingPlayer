@@ -27,7 +27,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import FluentWindow, setTheme, Theme
 
+from app.common.communication import Communication
 from app.view.main_window import MainWindow
+from app.view.video_interface import VideoInterface
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
@@ -36,7 +38,10 @@ QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
-setTheme(Theme.DARK)
-MainWindow.instance = MainWindow()
+# video = VideoInterface()
+# video.show()
+communication = Communication()
+MainWindow.instance = MainWindow(communication)
 MainWindow.instance.show()
+setTheme(Theme.DARK)
 app.exec_()
