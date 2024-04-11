@@ -48,6 +48,8 @@ class ExampleCard(QWidget):
         self.sourceWidget = QFrame(self.card)
         self.downloadButton = PushButton(
             self.tr('Tải về ngay'), self, FluentIcon.DOWNLOAD)
+        self.watchVideoButton = PushButton(
+            self.tr('Xem ngay'), self, FluentIcon.VIDEO)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.cardLayout = QVBoxLayout(self.card)
@@ -100,7 +102,9 @@ class ExampleCard(QWidget):
             self.topLayout.addStretch(1)
 
         self.widget.show()
-        self.bottomLayout.addStretch(1)
+        self.bottomLayout.addStretch(3)
         self.bottomLayout.addWidget(self.downloadButton, 0, Qt.AlignCenter)
         self.bottomLayout.addStretch(1)
+        self.bottomLayout.addWidget(self.watchVideoButton, 0, Qt.AlignCenter)
+        self.bottomLayout.addStretch(3)
         self.bottomLayout.setAlignment(Qt.AlignCenter)
