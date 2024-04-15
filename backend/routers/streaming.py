@@ -80,5 +80,4 @@ def upload_stream(file: UploadFile):
 @router.get("/index.m3u8")
 def get_m3u8():
     path = "storage/stream/test2.m3u8"
-
     return FileResponse(path)
