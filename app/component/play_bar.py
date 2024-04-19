@@ -1,13 +1,13 @@
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtMultimedia import QMediaPlayer
-from PyQt5.QtWidgets import QVBoxLayout, QLabel
-from qfluentwidgets import FluentStyleSheet, FluentIcon, PushButton
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QAction
+from qfluentwidgets import FluentStyleSheet, FluentIcon, PushButton, ComboBox, RoundMenu, TransparentDropDownToolButton
 from qfluentwidgets.multimedia import MediaPlayerBase
 from qfluentwidgets.multimedia.media_play_bar import MediaPlayBarBase, SimpleMediaPlayBar, MediaPlayBarButton, \
     StandardMediaPlayBar
+from qfluentwidgets import FluentIcon as FIF
 
 from app.common.communication import Communication
-from app.component.media_base import MediaBase
 
 
 class FullScreenButton(MediaPlayBarButton):
@@ -22,18 +22,31 @@ class PlayBar(SimpleMediaPlayBar):
         super().__init__()
         # self.hBoxLayout.removeWidget(self.progressSlider)
         # self.hBoxLayout.removeWidget(self.volumeButton)
-        #
+
         self.currentTimerLabel = QLabel("00:00")
         self.endTimerLabel = QLabel("00:00")
         self.currentTimerLabel.setStyleSheet("color: white")
         self.endTimerLabel.setStyleSheet("color: white")
         self.fullScreenButton = FullScreenButton()
+
+        self.menu = RoundMenu(parent=self)
+        self.menu.addAction(QAction('0.5'))
+        self.menu.addAction(QAction('1.0'))
+        self.menu.addAction(QAction('1.5'))
+        self.menu.addAction(QAction('2.0'))
+
+        self.transparentDropDownToolButton = TransparentDropDownToolButton(FIF.SPEED_OFF, self)
+        self.transparentDropDownToolButton.setMenu(self.menu)
+        self.menu.triggered.connect(self._onSpeedChanged)
+
         self.fullScreenButton.clicked.connect(self._toggleFullScreen)
 
+        self.hBoxLayout.addWidget(self.volumeButton, 0)
         self.hBoxLayout.addWidget(self.currentTimerLabel, 0)
         self.hBoxLayout.addWidget(self.progressSlider, 1)
         self.hBoxLayout.addWidget(self.endTimerLabel, 0)
-        self.hBoxLayout.addWidget(self.volumeButton, 0)
+
+        self.addButton(self.transparentDropDownToolButton)
 
         self.addButton(self.fullScreenButton)
         self.playButton.clicked.connect(self.togglePlay)
@@ -45,7 +58,7 @@ class PlayBar(SimpleMediaPlayBar):
         else:
             self.player.play()
 
-    def setMediaPlayer(self, mediaPlayer: MediaBase):
+    def setMediaPlayer(self, mediaPlayer: MediaPlayerBase):
         super().setMediaPlayer(mediaPlayer)
 
         self.player.durationChanged.connect(self._onDurationChanged)
@@ -57,6 +70,10 @@ class PlayBar(SimpleMediaPlayBar):
 
     def _toggleFullScreen(self):
         Communication.instance.videoFullScreenToggle.emit()
+
+    def _onSpeedChanged(self, action):
+        speed = float(action.text())
+        self.player.setPlaybackRate(speed)
 
     def _onDurationChanged(self, duration: int):
         self.progressSlider.setMaximum(duration)

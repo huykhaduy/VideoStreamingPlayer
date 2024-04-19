@@ -23,8 +23,8 @@ class MainWindow(FluentWindow):
 
         # enable acrylic effect
         self.navigationInterface.setAcrylicEnabled(True)
+        self.navigationInterface.setExpandWidth(180)
         self.navigationInterface.setCollapsible(False)
-        self.navigationInterface.setExpandWidth(200)
 
         self.__initWidget()
 
@@ -51,13 +51,14 @@ class MainWindow(FluentWindow):
 
     def __initWidget(self):
         pos = NavigationItemPosition.SCROLL
-        self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video Interface", pos)
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD,"Download Interface", pos)
+        self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video", pos)
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD,"Download", pos)
 
 
 
     def __setTitlebar(self):
-        self.setWindowTitle("Your Video Player")
+        self.setWindowTitle("DP Player")
+        # TODO: Fix icon bị lỗi không hiển thị
         self.setWindowIcon(QIcon(":/icons/app-icon.png"))
 
     def toggleFullScreen(self):
