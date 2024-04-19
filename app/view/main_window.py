@@ -9,6 +9,7 @@ from PyQt5.QtCore import QUrl, QSize
 
 from app.view.video_interface import VideoInterface
 from app.view.download_interface import DownloadInterface
+from app.view.list_video_interface import ListVideoInterface
 
 from qfluentwidgets import FluentIcon as FIF
 
@@ -21,6 +22,7 @@ class MainWindow(FluentWindow):
 
         self.videoInterface = VideoInterface()
         self.downloadInterface = DownloadInterface()
+        self.listVideoInterface = ListVideoInterface()
 
 
         # enable acrylic effect
@@ -35,7 +37,7 @@ class MainWindow(FluentWindow):
 
     def initWindow(self):
         # self.resize(960, 780)
-        self.setMinimumWidth(760)
+        self.setMinimumWidth(860)
         self.__setTitlebar()
 
 
@@ -54,7 +56,7 @@ class MainWindow(FluentWindow):
         pos = NavigationItemPosition.SCROLL
         self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video Interface", pos)
         self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD,"Download Interface", pos)
-
+        self.addSubInterface(self.listVideoInterface, FIF.HOME,"List Video Interface", pos)
 
 
     def __setTitlebar(self):

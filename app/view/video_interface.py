@@ -19,8 +19,8 @@ class VideoInterface(QWidget):
     def __initWidget(self):
         # self.setMinimumSize(800, 600)
         self.layout = QVBoxLayout()
-
-        self.videoWidget = QVideoWidget()
+        
+        self.videoWidget = QVideoWidget()   
         self.mediaPlayer = MediaPlayer(self)
         self.mediaPlayer.setVideoOutput(self.videoWidget)
         self.mediaPlayer.setMedia(QMediaContent(
