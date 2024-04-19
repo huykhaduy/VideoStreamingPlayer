@@ -6,7 +6,7 @@ from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget,QFrame ,QGraphicsView, QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QApplication, QSizePolicy
 from qfluentwidgets import (LineEdit, SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,
                             TextEdit, SearchLineEdit, PasswordLineEdit, StrongBodyLabel)
-from app.component.play_bar import PlayBar, FullScreenButton, MyStandardMediaPlayBar
+from app.component.play_bar import PlayBar, FullScreenButton
 
 from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon)
 

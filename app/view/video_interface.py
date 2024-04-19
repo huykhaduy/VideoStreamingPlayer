@@ -7,7 +7,7 @@ from qfluentwidgets.multimedia import VideoWidget, StandardMediaPlayBar, MediaPl
     SimpleMediaPlayBar
 from qfluentwidgets.multimedia.media_play_bar import MediaPlayBarBase
 
-from app.component.play_bar import PlayBar, FullScreenButton, MyStandardMediaPlayBar
+from app.component.play_bar import PlayBar
 
 
 class VideoInterface(QWidget):

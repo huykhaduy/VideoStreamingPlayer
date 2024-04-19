@@ -1,6 +1,7 @@
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
 # Define signal to communicate between components
 class Communication(QObject):
-    pass
+    instance = None
+    videoFullScreenToggle = pyqtSignal()
