@@ -1,12 +1,14 @@
 import os
 import shutil
 from datetime import datetime
+from typing import Annotated, Optional
 
 import m3u8
 import shortuuid
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, Form
 from starlette.responses import FileResponse
 
+from dto.Response import ResponseSuccess, ResponseError
 from model.Video import Video
 from utils.aws_utils import uploadSingleFile
 
@@ -14,70 +16,58 @@ router = APIRouter()
 
 
 @router.post("/init")
-# def init_stream(title: Annotated[str, Form()], description: Annotated[str, Form()], thumbnail: UploadFile, init_file: UploadFile):
-def init_stream(init_file: UploadFile):
-    # with open(f"storage/upload/{init_file.filename}", "wb") as f:
-    #     shutil.copyfileobj(init_file.file, f)
-    # if not os.path.exists(STREAM_FOLDER):
-    #     os.mkdir(STREAM_FOLDER)
-    # ffmpeg_command = [
-    #     'ffmpeg',
-    #     '-i', f'concat:{UPLOAD_FOLDER}/{init_file.filename}',
-    #     '-c', 'copy',
-    #     '-f', 'hls',
-    #     '-hls_time', '20',
-    #     '-start_number', '0',
-    #     f'{STREAM_FOLDER}/{init_file.filename.split(".")[0]}.m3u8'
-    # ]
-    # subprocess.run(ffmpeg_command)
-    # uploadFileInFolder(STREAM_FOLDER, STREAM_FOLDER)
-    #
-    # shutil.rmtree(STREAM_FOLDER)
-    # return {"message": init_file.filename}
-    #
-    # video_id = shortuuid.uuid()
-    # video = Video(video_id=video_id, url="", thumbnail="", duration=0, view=0, description="")
-    # Video.insert(video)
-    #
+def init_stream_video(title: Annotated[str, Form()], max_duration: Annotated[float, Form()]):
+    m3u8_file = m3u8.M3U8()
+    m3u8_file.version = 3
+    m3u8_file.target_duration = max_duration
+    m3u8_file.media_sequence = 0
 
-    init_url = uploadSingleFile(init_file.file, f"stream/{init_file.filename}")
+    video_id = shortuuid.uuid()
+    with open(f"storage/stream/{video_id}.m3u8", "w") as f:
+        f.write(m3u8_file.dumps())
 
-    playlist = m3u8.M3U8()
-    playlist.version = 3
-    playlist.media_sequence = 1
-    playlist.target_duration = 20
+    url = f"http://127.0.0.1:8000/stream/{video_id}.m3u8"
+    video = Video(video_id=video_id, title=title, duration=0, url=url)
+    Video.insert(video)
+
+    # Broadcast all clients by socket the new video
+    return ResponseSuccess(data=video.__dict__())
 
 
-    segment = m3u8.Segment(uri=init_url, duration=20.033333)
-    playlist.segments.append(segment)
-    with open(f"storage/stream/test2.m3u8", "w") as f:
-        f.write(playlist.dumps())
+# Hàm cập nhật video mới
+@router.post("/update/{video_id}")
+def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated[float, Form()]):
+    try:
+        path = f"storage/stream/{video_id}.m3u8"
+        playlist = m3u8.load(path)
+        if duration >= 0:
+            upload_url = ""
+            length = len(playlist.segments)
+            if length < 4:
+                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{length}.ts")
+                if length == 0:
+                    playlist.media_sequence = 0
+                else:
+                    playlist.media_sequence += 1
+            elif length >= 4:
+                playlist.segments.pop(0)
+                playlist.media_sequence += 1
+                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{playlist.media_sequence}.ts")
 
-    # with open(f"storage/stream/test2.m3u8", "rb") as f:
-    #     url = uploadSingleFile(f, f"stream/test2.m3u8")
-    return "OK"
+            segment = m3u8.Segment(uri=upload_url, duration=duration)
+            playlist.segments.append(segment)
+        else:
+            playlist.is_endlist = True
+            # Broadcast all clients by socket the video is end
+
+        with open(path, "w") as f:
+            f.write(playlist.dumps())
+        return ResponseSuccess()
+    except Exception as e:
+        return ResponseError(message=str(e))
 
 
-@router.post("/upload")
-def upload_stream(file: UploadFile):
-    path = "storage/stream/test2.m3u8"
-    playlist = m3u8.load(path)
-    playlist.media_sequence += 1
-
-    upload_url = uploadSingleFile(file.file, f"stream/{file.filename}")
-    segment = m3u8.Segment(uri=upload_url, duration=20.033333)
-    playlist.segments.append(segment)
-
-    with open(f"storage/stream/test2.m3u8", "w") as f:
-        f.write(playlist.dumps())
-
-    return "OK"
-    # with open(f"storage/stream/test2.m3u8", "rb") as f:
-    #     url = uploadSingleFile(f, f"stream/test2.m3u8")
-    # return url
-
-
-@router.get("/index.m3u8")
-def get_m3u8():
-    path = "storage/stream/test2.m3u8"
+@router.get("/{video_id}.m3u8")
+def get_m3u8(video_id: str):
+    path = f"storage/stream/{video_id}.m3u8"
     return FileResponse(path)

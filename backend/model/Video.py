@@ -66,7 +66,7 @@ class Video:
         return {
             "id": self.id,
             "title": self.title,
-            "url": os.getenv("CLOUDFRONT_URL") + self.url,
+            "url":  os.getenv("CLOUDFRONT_URL") + self.url if "http" not in self.url else self.url,
             "thumbnail": os.getenv("CLOUDFRONT_URL") + self.thumbnail,
             "duration": self.duration,
             "view": self.view,

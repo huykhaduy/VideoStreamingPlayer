@@ -28,4 +28,5 @@ archive.zip
 
 # macOS
 .DS_Store
-upload_dir/*
+storage/upload/*
+storage/stream/*
