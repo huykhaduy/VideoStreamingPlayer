@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QResizeEvent
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QVBoxLayout
 from qfluentwidgets import (NavigationAvatarWidget, NavigationItemPosition, MessageBox, FluentWindow,
                             SplashScreen)
@@ -25,12 +25,13 @@ class MainWindow(FluentWindow):
 
         # enable acrylic effect
         self.navigationInterface.setAcrylicEnabled(True)
+        self.navigationInterface.setCollapsible(False)
+        self.navigationInterface.setExpandWidth(200)
 
 
         self.__initWidget()
 
         self.splashScreen.finish()
-
 
 
     def initWindow(self):
