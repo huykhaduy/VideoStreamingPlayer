@@ -8,7 +8,6 @@ import subprocess
 import shutil
 from routers.video import router as video_router
 from routers.streaming import router as streaming_router
-from routers.downloader import router as downloader_router
 
 from utils.aws_utils import uploadFileInFolder
 
@@ -22,7 +21,6 @@ STREAM_FOLDER = "stream"
 
 app.include_router(video_router, prefix="/api/video", tags=["videos"])
 app.include_router(streaming_router, prefix="/api/stream", tags=["streaming"])
-app.include_router(downloader_router, prefix="/api/downloader", tags=["downloader"])
 
 
 # TODO: Implement model to insert database and return media url
@@ -31,6 +29,7 @@ app.include_router(downloader_router, prefix="/api/downloader", tags=["downloade
 # TODO: Nên chỉnh lại định dạng tên cho từng file upload
 
 
+# TODO: Chưa hoàn thành
 @app.post("/upload-stream")
 def upload_file_stream(video_id: Annotated[str, Form()], upload_segment: UploadFile):
     # print(video_id)
@@ -47,6 +46,7 @@ def upload_file_stream(video_id: Annotated[str, Form()], upload_segment: UploadF
     return {"video_id": video.dumps()}
 
 
+# TODO: Chưa hoàn thành
 @app.post("/init-stream")
 # def init_stream(title: Annotated[str, Form()], description: Annotated[str, Form()], thumbnail: UploadFile, init_file: UploadFile):
 def init_stream(init_file: UploadFile):

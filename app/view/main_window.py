@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QResizeEvent
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QVBoxLayout
 from qfluentwidgets import (NavigationAvatarWidget, NavigationItemPosition, MessageBox, FluentWindow,
                             SplashScreen)
@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 
 from PyQt5.QtCore import QUrl, QSize
 
-
+from app.common.communication import Communication
 from app.view.video_interface import VideoInterface
 from app.view.download_interface import DownloadInterface
 from app.view.list_video_interface import ListVideoInterface
@@ -14,11 +14,9 @@ from app.view.list_video_interface import ListVideoInterface
 from qfluentwidgets import FluentIcon as FIF
 
 class MainWindow(FluentWindow):
-    def __init__(self, communication):
+    def __init__(self):
         super().__init__()
-        self.communication = communication
         self.initWindow()
-
 
         self.videoInterface = VideoInterface()
         self.downloadInterface = DownloadInterface()
@@ -27,13 +25,14 @@ class MainWindow(FluentWindow):
 
         # enable acrylic effect
         self.navigationInterface.setAcrylicEnabled(True)
-
+        self.navigationInterface.setExpandWidth(180)
+        self.navigationInterface.setCollapsible(False)
 
         self.__initWidget()
 
         self.splashScreen.finish()
 
-
+        Communication.instance.videoFullScreenToggle.connect(self.toggleFullScreen)
 
     def initWindow(self):
         # self.resize(960, 780)
@@ -60,6 +59,10 @@ class MainWindow(FluentWindow):
 
 
     def __setTitlebar(self):
-        self.setWindowTitle("Your Video Player")
+        self.setWindowTitle("DP Player")
+        # TODO: Fix icon bị lỗi không hiển thị
         self.setWindowIcon(QIcon(":/icons/app-icon.png"))
+
+    def toggleFullScreen(self):
+        self.showFullScreen() if not self.isFullScreen() else self.showNormal()
 
