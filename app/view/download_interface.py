@@ -1,24 +1,14 @@
 
-from PyQt5.QtCore import QUrl, QIODevice, Qt, QFile, QStandardPaths
-from PyQt5.QtGui import QResizeEvent, QFont, QColor    
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtCore import QUrl, Qt
 from PyQt5.QtWidgets import QWidget,QFrame ,QFileDialog, QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QApplication, QSizePolicy
 from qfluentwidgets import (LineEdit, SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,PushSettingCard,
                             TextEdit, FolderValidator, PasswordLineEdit, StrongBodyLabel, MessageBoxBase, SubtitleLabel, ConfigItem, qconfig, QConfig)
-from app.component.play_bar import PlayBar, FullScreenButton, MyStandardMediaPlayBar
 
 from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon)
 from pytube import YouTube
-from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 import threading
-import requests
 import os
-import re
-from bs4 import BeautifulSoup
-import youtube_dl 
-import m3u8_To_MP4
 import subprocess
 
 

@@ -1,11 +1,8 @@
 from PyQt5.QtCore import QUrl, QIODevice, Qt, QFile, QStandardPaths
 from PyQt5.QtGui import QResizeEvent, QFont, QColor, QPixmap,QMouseEvent
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QScrollArea,QFrame ,QFileDialog, QGridLayout,QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QApplication, QSizePolicy
 from qfluentwidgets import (LineEdit, ExpandLayout,SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,PushSettingCard,
                             TextEdit, FolderValidator, PasswordLineEdit, StrongBodyLabel, MessageBoxBase, SubtitleLabel, ConfigItem, qconfig, QConfig)
-from app.component.play_bar import PlayBar, FullScreenButton, MyStandardMediaPlayBar
 
 from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon, )
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
