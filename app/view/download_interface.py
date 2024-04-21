@@ -27,12 +27,13 @@ class DownloadInterface(QWidget):
     def __initWidget(self):
         lineEdit = LineEdit(self)
         lineEdit.setText(self.tr(''))
+        lineEdit.setPlaceholderText(self.tr('Nhập link video'))
         lineEdit.setClearButtonEnabled(True)
         lineEdit.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         example_card = ExampleCard(
-            title=self.tr("Download Video Here !!"),
+            title=self.tr("Tải xuống hoặc xem video"),
             widget=lineEdit,
             parent_window=self.window()  # Truyền tham chiếu đến cửa sổ chính
         )

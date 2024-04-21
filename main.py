@@ -30,11 +30,13 @@ from qfluentwidgets import FluentWindow, setTheme, Theme
 from app.common.communication import Communication
 from app.view.main_window import MainWindow
 from app.view.video_interface import VideoInterface
+import resources
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+QApplication.processEvents()
 
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)

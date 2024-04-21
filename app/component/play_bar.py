@@ -61,8 +61,8 @@ class PlayBar(SimpleMediaPlayBar):
     def setMediaPlayer(self, mediaPlayer: MediaPlayerBase):
         super().setMediaPlayer(mediaPlayer)
 
-        self.player.durationChanged.connect(self._onDurationChanged)
-        self.player.positionChanged.connect(self._onPositionChanged)
+        # self.player.durationChanged.connect(self._onDurationChanged)
+        # self.player.positionChanged.connect(self._onPositionChanged)
         self.progressSlider.sliderMoved.disconnect()
         self.progressSlider.sliderPressed.connect(self._startChangePosition)
         self.progressSlider.sliderReleased.connect(self._changePosition)

@@ -7,6 +7,6 @@
         <file alias="app-icon.png">icons/app-icon.png</file>
     </qresource>
     <qresource prefix="images">
-
+         <file alias="no-image.jpg">images/no_image.jpg</file>
     </qresource>
 </RCC>

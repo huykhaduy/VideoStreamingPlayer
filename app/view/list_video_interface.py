@@ -4,9 +4,8 @@ from PyQt5.QtWidgets import QWidget, QScrollArea,QFrame ,QFileDialog, QGridLayou
 from qfluentwidgets import (LineEdit, ExpandLayout,SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,PushSettingCard,
                             TextEdit, FolderValidator, PasswordLineEdit, StrongBodyLabel, MessageBoxBase, SubtitleLabel, ConfigItem, qconfig, QConfig)
 
-from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon, )
+from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon, ImageLabel)
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-
 
 class ListVideoInterface(ScrollArea):
     def __init__(self, parent=None):
@@ -27,6 +26,10 @@ class ListVideoInterface(ScrollArea):
             border: none;
         """)
         self.__initWidget()
+
+        no_image = QPixmap(":/images/no_image.png")
+        no_image.scaled(200, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+        VideoCard.no_image = no_image
     
     def __initWidget(self):
         lineEdit = LineEdit(self)
@@ -78,8 +81,6 @@ class ListVideoInterface(ScrollArea):
         self.vBoxLayout.addWidget(self.showMoreButton2)
         self.vBoxLayout.addStretch(1)
 
-        # Update grid layouts initially
-        self.updateGridLayouts()
 
     def toggleShowMore(self):
         self.toggleState('showMore')
@@ -92,30 +93,27 @@ class ListVideoInterface(ScrollArea):
         self.updateGridLayouts()
 
     def updateGridLayouts(self):
+        # print("Updating grid layouts")
+        # self.video = VideoCard("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00")
         self.updateGridLayout1()
         self.updateGridLayout2()
         self.updateShowMoreButton()
 
     def updateGridLayout1(self):
         video_cards_data = [
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-             ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-             ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
-            ("", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+             ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+             ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
         ]
         self.updateGridLayout(self.gridLayout, video_cards_data, 'showMore')
 
@@ -169,14 +167,18 @@ class ListVideoInterface(ScrollArea):
 
 
 class VideoCard(QWidget):
+    pixmap_cache = {}
+    no_image = None
     def __init__(self, video_image, video_title, views, time, parent=None):
         super().__init__(parent)
         self.is_hovered = False  # Biến để theo dõi trạng thái khi di chuột vào
         self.setStyleSheet("VideoCard { background-color: #333; border-radius: 5px; padding: 10px; }")
+        self.setCursor(Qt.PointingHandCursor)
         self.vBoxLayout = QVBoxLayout(self)
+        self.video_image = video_image
 
         # Video image
-        self.videoImageLabel = QLabel(self)
+        self.videoImageLabel = ImageLabel(self)
 
         # Video title
         self.videoTitleLabel = QLabel(video_title, self)
@@ -184,7 +186,7 @@ class VideoCard(QWidget):
 
 
         # Views
-        self.viewsLabel = QLabel(f"{views} views", self)
+        self.viewsLabel = QLabel(f"{views} lượt xem", self)
         self.viewsLabel.setStyleSheet("color: white; font-size: 12px;")
 
 
@@ -205,9 +207,14 @@ class VideoCard(QWidget):
         self.loadImage(video_image)
 
     def loadImage(self, url):
-        nam = QNetworkAccessManager(self)
-        nam.finished.connect(self.handleFinished)
-        nam.get(QNetworkRequest(QUrl(url)))
+        if url in self.pixmap_cache:
+            self.videoImageLabel.setPixmap(self.pixmap_cache[url])
+        else:
+            if self.no_image is not None:
+                self.videoImageLabel.setPixmap(self.no_image)
+            nam = QNetworkAccessManager(self)
+            nam.finished.connect(self.handleFinished)
+            nam.get(QNetworkRequest(QUrl(url)))
 
     def handleFinished(self, reply):
         er = reply.error()
@@ -217,6 +224,7 @@ class VideoCard(QWidget):
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_string)
             scaled_pixmap = pixmap.scaled(200, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.pixmap_cache[self.video_image] = scaled_pixmap
             self.videoImageLabel.setPixmap(scaled_pixmap)
 
     def enterEvent(self, event):

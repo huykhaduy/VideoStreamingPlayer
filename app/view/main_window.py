@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QUrl, QSize
 
 from app.common.communication import Communication
+from app.view.home_interface import HomeInterface
+from app.view.setting_interface import SettingInterface
 from app.view.video_interface import VideoInterface
 from app.view.download_interface import DownloadInterface
 from app.view.list_video_interface import ListVideoInterface
@@ -18,9 +20,10 @@ class MainWindow(FluentWindow):
         super().__init__()
         self.initWindow()
 
-        self.videoInterface = VideoInterface()
+        # self.videoInterface = VideoInterface()
         self.downloadInterface = DownloadInterface()
         self.listVideoInterface = ListVideoInterface()
+        self.settingInterface = SettingInterface()
 
 
         # enable acrylic effect
@@ -53,10 +56,12 @@ class MainWindow(FluentWindow):
 
     def __initWidget(self):
         pos = NavigationItemPosition.SCROLL
-        self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video Interface", pos)
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD,"Download Interface", pos)
-        self.addSubInterface(self.listVideoInterface, FIF.HOME,"List Video Interface", pos)
+        bottom = NavigationItemPosition.BOTTOM
+        self.addSubInterface(self.listVideoInterface, FIF.HOME, "Trang chủ", pos)
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, "Tải xuống", pos)
+        # self.addSubInterface(self.videoInterface, FIF.VIDEO,"Video", pos)
 
+        self.addSubInterface(self.settingInterface, FIF.SETTING, "Cài đặt", bottom)
 
     def __setTitlebar(self):
         self.setWindowTitle("DP Player")
