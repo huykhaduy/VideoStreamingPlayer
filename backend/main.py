@@ -33,6 +33,8 @@ async def check_token(request, call_next):
 # TODO: Các folder cần phải tạo theo cách random và xóa theo cách random bởi vì nếu upload nhiều file cùng lúc sẽ bị lỗi
 # TODO: Nên chỉnh lại định dạng tên cho từng file upload
 
+# TODO: Kiểm tra loại file của streaming
+# Không cho phép lấy tên của file mà lấy theo uuid
 
 # TODO: Chưa hoàn thành
 @app.post("/upload-stream")

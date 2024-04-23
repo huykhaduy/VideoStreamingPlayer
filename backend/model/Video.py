@@ -77,7 +77,7 @@ class Video:
             "id": self.id,
             "title": self.title,
             "url":  os.getenv("CLOUDFRONT_URL") + self.url if "http" not in self.url else self.url,
-            "thumbnail": os.getenv("CLOUDFRONT_URL") + self.thumbnail,
+            "thumbnail": os.getenv("CLOUDFRONT_URL") + self.thumbnail if "http" not in self.thumbnail else self.thumbnail,
             "duration": self.duration,
             "view": self.view,
             "created_at": self.created_at,

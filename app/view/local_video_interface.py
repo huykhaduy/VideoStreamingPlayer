@@ -50,7 +50,7 @@ class LocalVideoWidget(QWidget):
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.setLayout(self.vBoxLayout)
 
-        self.image = ImageLabel(":/images/no_image.jpg")
+        self.image = ImageLabel(":/images/no-image.jpg")
         self.image.setFixedSize(200, 150)
         self.title = StrongBodyLabel("Title")
         self.vBoxLayout.addWidget(self.image, 0, Qt.AlignTop)

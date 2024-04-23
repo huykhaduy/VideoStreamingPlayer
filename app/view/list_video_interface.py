@@ -10,7 +10,7 @@ import requests
 
 from app.common.communication import Communication
 from app.model.Video import Video
-
+import resources
 
 class ListVideoInterface(ScrollArea):
     def __init__(self, parent=None):
@@ -22,7 +22,6 @@ class ListVideoInterface(ScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setWidget(self.view)
         self.setWidgetResizable(True)
-        self.vBoxLayout.setSpacing(30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
         self.setStyleSheet("""
@@ -32,26 +31,28 @@ class ListVideoInterface(ScrollArea):
         """)
         self._loadData()
         self.__initWidget()
-        no_image = QPixmap(":/images/no_image.jpg")
+        no_image = QPixmap(":/icons/no-image.png")
         VideoCard.no_image = no_image
 
     def __initWidget(self):
         self.lineEdit = LineEdit(self)
         self.lineEdit.setText(self.tr(''))
         self.lineEdit.setClearButtonEnabled(True)
+        self.lineEdit.setPlaceholderText(self.tr('Tên video, mô tả, ...'))
         self.lineEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         self.searchButton = PushButton(
             self.tr('Tìm kiếm'), self, FluentIcon.SEARCH)
         
         # Create a horizontal layout
+        self.searchWidget = QWidget()
         hBoxLayout = QHBoxLayout()
         hBoxLayout.addWidget(self.lineEdit)
         hBoxLayout.addWidget(self.searchButton)
         
         # Add the horizontal layout to the vertical layout
-        self.vBoxLayout.addLayout(hBoxLayout)
-        self.vBoxLayout.addStretch(1)
+        self.searchWidget.setLayout(hBoxLayout)
+        self.vBoxLayout.addWidget(self.searchWidget, 0, Qt.AlignTop)
 
         self.liveVideoWidget = QWidget()
         self.liveVBoxLayout = QVBoxLayout()
@@ -69,33 +70,31 @@ class ListVideoInterface(ScrollArea):
         self.liveVBoxLayout.addWidget(self.showMoreButton)
 
         self.liveVideoWidget.setLayout(self.liveVBoxLayout)
-        self.vBoxLayout.addWidget(self.liveVideoWidget)
+        self.vBoxLayout.addWidget(self.liveVideoWidget, 0, Qt.AlignTop)
 
         # Set initial state
         self.showStates = {'showMore': False, 'showMore2': False}
         self.numRows = 1  # Initial number of rows to display
-        
-        self.liveVBoxLayout.addStretch(7)
 
         self.resizeEvent = self.onResize
 
         self.vodVideoWidget = QWidget()
         self.vodVBoxLayout = QVBoxLayout()
 
-        self.titleLabel2 = StrongBodyLabel("Các video hiện có", self)
+        self.titleLabel2 = StrongBodyLabel("Các video có sẵn", self)
         self.vodVBoxLayout.addWidget(self.titleLabel2, 0, Qt.AlignTop)
-        self.vodVBoxLayout.addStretch(12)
+        # self.vodVBoxLayout.addStretch(12)
 
-        self.gridLayout2 = QGridLayout()  
+        self.gridLayout2 = QGridLayout()
+        self.gridLayout2.setSpacing(10)
         self.vodVBoxLayout.addLayout(self.gridLayout2)
 
         self.showMoreButton2 = PushButton("Hiển thị thêm", self)
         self.showMoreButton2.clicked.connect(self.toggleShowMore2)
         self.vodVBoxLayout.addWidget(self.showMoreButton2)
-        self.vodVBoxLayout.addStretch(1)
 
         self.vodVideoWidget.setLayout(self.vodVBoxLayout)
-        self.vBoxLayout.addWidget(self.vodVideoWidget)
+        self.vBoxLayout.addWidget(self.vodVideoWidget, 0, Qt.AlignTop)
 
         self.searchButton.clicked.connect(self._onSearch)
 
