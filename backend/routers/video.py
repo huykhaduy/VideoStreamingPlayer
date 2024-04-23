@@ -46,7 +46,7 @@ def create_video(file: UploadFile, thumbnail: UploadFile, title:  Annotated[str,
         os.remove(path)
         shutil.rmtree(TEMP_FOLDER)
         # Save to database
-        video = Video(video_id=video_uuid, title=title, description=description, thumbnail=f"/thumbnail/{video_uuid}", url=f"/video/{video_uuid}/{output_name}.m3u8")
+        video = Video(id=video_uuid, title=title, description=description, thumbnail=f"/thumbnail/{video_uuid}", url=f"/video/{video_uuid}/{output_name}.m3u8")
         Video.insert(video)
 
         return ResponseSuccess(data=video.__dict__())
@@ -56,7 +56,11 @@ def create_video(file: UploadFile, thumbnail: UploadFile, title:  Annotated[str,
 
 @router.get("/detail/{video_id}")
 def get_video(video_id: str):
-    return Video.get(video_id)
+    video = Video.get(video_id)
+    videoModel = Video.from_dict(video)
+    videoModel.view += 1
+    Video.update(videoModel)
+    return video
 
 
 @router.post("/delete/{video_id}")
@@ -67,7 +71,17 @@ def delete_video(video_id: str):
     except Exception as e:
         return ResponseError(message=str(e))
 
+@router.get("/view/{video_id}")
+def view_video(video_id: str = ""):
+    try:
+        video = Video.get(video_id)
+        video.view += 1
+        Video.update(video)
+        return ResponseSuccess(data=video.__dict__())
+    except Exception as e:
+        return ResponseError(message=str(e))
+
 
 @router.get("/list")
-def list_video():
-    return Video.list_all()
+def list_video(search: str = ""):
+    return Video.list_all(search)

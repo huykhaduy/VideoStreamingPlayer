@@ -11,6 +11,9 @@ import threading
 import os
 import subprocess
 
+from app.common.communication import Communication
+from app.common.config import cfg
+
 
 class DownloadInterface(QWidget):
     def __init__(self):
@@ -22,7 +25,7 @@ class DownloadInterface(QWidget):
         self.vBoxLayout.setContentsMargins(36, 20, 36, 36)
     
         self.__initWidget()
-
+        Communication.instance.downloadCompleted.connect(self._onDownloadCompleted)
 
     def __initWidget(self):
         lineEdit = LineEdit(self)
@@ -39,6 +42,9 @@ class DownloadInterface(QWidget):
         )
 
         self.vBoxLayout.addWidget(example_card, 0, Qt.AlignTop)
+
+    def _onDownloadCompleted(self, link, location):
+        print(f"Download completed: {link} -> {location}")
 
 class ExampleCard(QWidget):
     def __init__(self, title, widget: QWidget, stretch=1, parent_window=None):
@@ -207,9 +213,4 @@ class CustomMessageBox(MessageBoxBase):
 
             # Mark the task as done
             self.download_queue.task_done()
-
-class Config(QConfig):
-    """ Config of application """
-    downloadFolder = ConfigItem(
-        "Folders", "Download", "app/download", FolderValidator())
-cfg = Config()
+            Communication.instance.downloadCompleted.emit(link, location)

@@ -6,6 +6,11 @@ from qfluentwidgets import (LineEdit, ExpandLayout,SpinBox, DoubleSpinBox, TimeE
 
 from qfluentwidgets import (ScrollArea, PushButton, ToolButton, FluentIcon, ImageLabel)
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+import requests
+
+from app.common.communication import Communication
+from app.model.Video import Video
+
 
 class ListVideoInterface(ScrollArea):
     def __init__(self, parent=None):
@@ -25,24 +30,23 @@ class ListVideoInterface(ScrollArea):
             color: #FFFFFF; 
             border: none;
         """)
+        self._loadData()
         self.__initWidget()
-
-        no_image = QPixmap(":/images/no_image.png")
-        no_image.scaled(200, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+        no_image = QPixmap(":/images/no_image.jpg")
         VideoCard.no_image = no_image
-    
+
     def __initWidget(self):
-        lineEdit = LineEdit(self)
-        lineEdit.setText(self.tr(''))
-        lineEdit.setClearButtonEnabled(True)
-        lineEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.lineEdit = LineEdit(self)
+        self.lineEdit.setText(self.tr(''))
+        self.lineEdit.setClearButtonEnabled(True)
+        self.lineEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         self.searchButton = PushButton(
             self.tr('Tìm kiếm'), self, FluentIcon.SEARCH)
         
         # Create a horizontal layout
         hBoxLayout = QHBoxLayout()
-        hBoxLayout.addWidget(lineEdit)
+        hBoxLayout.addWidget(self.lineEdit)
         hBoxLayout.addWidget(self.searchButton)
         
         # Add the horizontal layout to the vertical layout
@@ -81,6 +85,16 @@ class ListVideoInterface(ScrollArea):
         self.vBoxLayout.addWidget(self.showMoreButton2)
         self.vBoxLayout.addStretch(1)
 
+        self.searchButton.clicked.connect(self._onSearch)
+
+    def _loadData(self, search=""):
+        videos = Video.getListVideo(search)
+        self.streaming_videos = [video for video in videos if video.is_streaming]
+        self.vod_videos = [video for video in videos if not video.is_streaming]
+
+    def _onSearch(self):
+        self._loadData(self.lineEdit.text())
+        self.updateGridLayouts()
 
     def toggleShowMore(self):
         self.toggleState('showMore')
@@ -94,47 +108,49 @@ class ListVideoInterface(ScrollArea):
 
     def updateGridLayouts(self):
         # print("Updating grid layouts")
-        # self.video = VideoCard("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00")
-        self.updateGridLayout1()
-        self.updateGridLayout2()
+        self.updateGridLayout(self.gridLayout, self.streaming_videos, 'showMore')
+        self.updateGridLayout(self.gridLayout2, self.vod_videos, 'showMore2')
         self.updateShowMoreButton()
 
-    def updateGridLayout1(self):
-        video_cards_data = [
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-             ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-            ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-             ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-        ]
-        self.updateGridLayout(self.gridLayout, video_cards_data, 'showMore')
-
-    def updateGridLayout2(self):
-        video_cards_data = [
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-            ("", "Video Title 2", "2000", "12:00"),
-        ]
-        self.updateGridLayout(self.gridLayout2, video_cards_data, 'showMore2')
+    # def updateGridLayout1(self):
+    #     video_cards_data = [
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #          ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #          ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
+    #     ]
+    #     self.updateGridLayout(self.gridLayout, video_cards_data, 'showMore')
+    #
+    # def updateGridLayout2(self):
+    #     video_cards_data = [
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #         ("", "Video Title 2", "2000", "12:00"),
+    #     ]
+    #     self.updateGridLayout(self.gridLayout2, video_cards_data, 'showMore2')
 
     def updateGridLayout(self, grid_layout, video_cards_data, show_key):
         self.clearGridLayout(grid_layout)
         # Adjust the number of columns based on the available width
         available_width = self.width() - grid_layout.contentsMargins().left() - grid_layout.contentsMargins().right()
         num_columns = max(1, available_width // 250)  # Minimum width for VideoCard is 250
+        available_width -= num_columns * 250
+        max_width = 200 + available_width // num_columns
+        # print(max_width)
         row = 0
         col = 0
         num_cards = len(video_cards_data)
@@ -142,7 +158,7 @@ class ListVideoInterface(ScrollArea):
         for i, data in enumerate(video_cards_data):
             if i >= max_rows * num_columns:
                 break
-            videoCard = VideoCard(*data)
+            videoCard = VideoCard(data, width=max_width)
             grid_layout.addWidget(videoCard, row, col)
             col += 1
             if col == num_columns:
@@ -169,29 +185,30 @@ class ListVideoInterface(ScrollArea):
 class VideoCard(QWidget):
     pixmap_cache = {}
     no_image = None
-    def __init__(self, video_image, video_title, views, time, parent=None):
+    def __init__(self, video = None, width = 200, parent=None):
         super().__init__(parent)
         self.is_hovered = False  # Biến để theo dõi trạng thái khi di chuột vào
         self.setStyleSheet("VideoCard { background-color: #333; border-radius: 5px; padding: 10px; }")
         self.setCursor(Qt.PointingHandCursor)
         self.vBoxLayout = QVBoxLayout(self)
-        self.video_image = video_image
+        self.video_image = video.thumbnail
+        self.video = video
 
         # Video image
         self.videoImageLabel = ImageLabel(self)
 
         # Video title
-        self.videoTitleLabel = QLabel(video_title, self)
+        self.videoTitleLabel = QLabel(video.title, self)
         self.videoTitleLabel.setStyleSheet("color: white; font-size: 15px;")
 
 
         # Views
-        self.viewsLabel = QLabel(f"{views} lượt xem", self)
+        self.viewsLabel = QLabel(f"{video.views} lượt xem", self)
         self.viewsLabel.setStyleSheet("color: white; font-size: 12px;")
 
 
         # Time
-        self.timeLabel = QLabel(time, self)
+        self.timeLabel = QLabel(str(video.duration), self)
         self.timeLabel.setStyleSheet("color: white; font-size: 10px;")
 
         # Add widgets to layout
@@ -203,12 +220,15 @@ class VideoCard(QWidget):
         self.vBoxLayout.setContentsMargins(5, 5, 5, 5)
 
         self.setLayout(self.vBoxLayout)
-  
-        self.loadImage(video_image)
+
+        self.width = width
+        self.loadImage(video.thumbnail)
 
     def loadImage(self, url):
         if url in self.pixmap_cache:
-            self.videoImageLabel.setPixmap(self.pixmap_cache[url])
+            pixmap = self.pixmap_cache[url]
+            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+            self.videoImageLabel.setPixmap(scaled_pixmap)
         else:
             if self.no_image is not None:
                 self.videoImageLabel.setPixmap(self.no_image)
@@ -223,7 +243,7 @@ class VideoCard(QWidget):
             bytes_string = reply.readAll()
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_string)
-            scaled_pixmap = pixmap.scaled(200, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
             self.pixmap_cache[self.video_image] = scaled_pixmap
             self.videoImageLabel.setPixmap(scaled_pixmap)
 
@@ -240,4 +260,4 @@ class VideoCard(QWidget):
     def mousePressEvent(self, event: QMouseEvent):
         # Xử lý sự kiện khi nhấp chuột vào VideoCard
         if event.button() == Qt.LeftButton:
-            print("Clicked on VideoCard")
+            Communication.instance.openVideoChanged.emit(self.video.id)

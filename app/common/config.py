@@ -50,6 +50,8 @@ class Config(QConfig):
     # software update
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
 
+    themeMode = OptionsConfigItem("MainWindow", "ThemeMode", Theme.DARK, OptionsValidator(Theme), restart=True)
+
 
 YEAR = 2024
 AUTHOR = "huykhaduy"
@@ -59,6 +61,5 @@ VERSION = "1.0.0"
 
 
 cfg = Config()
-cfg.themeMode.value = Theme.DARK
 
 # qconfig.load('app/config/config.json', cfg)

@@ -22,6 +22,11 @@ STREAM_FOLDER = "stream"
 app.include_router(video_router, prefix="/api/video", tags=["videos"])
 app.include_router(streaming_router, prefix="/api/stream", tags=["streaming"])
 
+@app.middleware("http")
+async def check_token(request, call_next):
+    # print(request.url)
+    response = await call_next(request)
+    return response
 
 # TODO: Implement model to insert database and return media url
 # TODO: Lọc loại file cho phép upload
