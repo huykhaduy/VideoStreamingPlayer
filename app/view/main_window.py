@@ -64,10 +64,10 @@ class MainWindow(FluentWindow):
         bottom = NavigationItemPosition.BOTTOM
         self.addSubInterface(self.listVideoInterface, FIF.HOME, "Trang chủ", pos)
         self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, "Tải xuống", pos)
-        # self.addSubInterface(self.localVideoInterface, FIF.FOLDER, "Xem trong máy", pos)
+        self.addSubInterface(self.videoInterface, FIF.VIDEO, "Đang xem", pos)
 
         self.addSubInterface(self.settingInterface, FIF.SETTING, "Cài đặt", bottom)
-        self.addSubVideoInterface(self.videoInterface)
+
 
     def __setTitlebar(self):
         self.setWindowTitle("DP Player")

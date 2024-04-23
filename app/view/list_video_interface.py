@@ -53,37 +53,49 @@ class ListVideoInterface(ScrollArea):
         self.vBoxLayout.addLayout(hBoxLayout)
         self.vBoxLayout.addStretch(1)
 
+        self.liveVideoWidget = QWidget()
+        self.liveVBoxLayout = QVBoxLayout()
+
         self.titleLabel = StrongBodyLabel("Phát sóng trực tiếp", self)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
+        self.liveVBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignTop)
 
         self.gridLayout = QGridLayout()
         self.gridLayout.setSpacing(10)
         
-        self.vBoxLayout.addLayout(self.gridLayout)
+        self.liveVBoxLayout.addLayout(self.gridLayout)
 
         self.showMoreButton = PushButton("Hiển thị thêm", self)
         self.showMoreButton.clicked.connect(self.toggleShowMore)
-        self.vBoxLayout.addWidget(self.showMoreButton)
+        self.liveVBoxLayout.addWidget(self.showMoreButton)
+
+        self.liveVideoWidget.setLayout(self.liveVBoxLayout)
+        self.vBoxLayout.addWidget(self.liveVideoWidget)
 
         # Set initial state
         self.showStates = {'showMore': False, 'showMore2': False}
         self.numRows = 1  # Initial number of rows to display
         
-        self.vBoxLayout.addStretch(7)
+        self.liveVBoxLayout.addStretch(7)
 
         self.resizeEvent = self.onResize
 
+        self.vodVideoWidget = QWidget()
+        self.vodVBoxLayout = QVBoxLayout()
+
         self.titleLabel2 = StrongBodyLabel("Các video hiện có", self)
-        self.vBoxLayout.addWidget(self.titleLabel2, 0, Qt.AlignTop)
-        self.vBoxLayout.addStretch(12)
+        self.vodVBoxLayout.addWidget(self.titleLabel2, 0, Qt.AlignTop)
+        self.vodVBoxLayout.addStretch(12)
 
         self.gridLayout2 = QGridLayout()  
-        self.vBoxLayout.addLayout(self.gridLayout2)
+        self.vodVBoxLayout.addLayout(self.gridLayout2)
 
         self.showMoreButton2 = PushButton("Hiển thị thêm", self)
         self.showMoreButton2.clicked.connect(self.toggleShowMore2)
-        self.vBoxLayout.addWidget(self.showMoreButton2)
-        self.vBoxLayout.addStretch(1)
+        self.vodVBoxLayout.addWidget(self.showMoreButton2)
+        self.vodVBoxLayout.addStretch(1)
+
+        self.vodVideoWidget.setLayout(self.vodVBoxLayout)
+        self.vBoxLayout.addWidget(self.vodVideoWidget)
 
         self.searchButton.clicked.connect(self._onSearch)
 
@@ -107,10 +119,24 @@ class ListVideoInterface(ScrollArea):
         self.updateGridLayouts()
 
     def updateGridLayouts(self):
-        # print("Updating grid layouts")
+        print("Updating grid layouts")
+        self.updateGridDisplay()
         self.updateGridLayout(self.gridLayout, self.streaming_videos, 'showMore')
         self.updateGridLayout(self.gridLayout2, self.vod_videos, 'showMore2')
         self.updateShowMoreButton()
+
+    def updateGridDisplay(self):
+        if len(self.streaming_videos) > 0:
+            self.liveVideoWidget.show()
+        else:
+            self.liveVideoWidget.hide()
+
+        if len(self.vod_videos) > 0:
+            self.vodVideoWidget.show()
+        else:
+            self.vodVideoWidget.hide()
+
+        self.update()
 
     # def updateGridLayout1(self):
     #     video_cards_data = [
@@ -172,6 +198,7 @@ class ListVideoInterface(ScrollArea):
             widget.deleteLater()
 
     def onResize(self, event):
+        print("Resize event")
         self.updateGridLayouts()
         return QScrollArea.resizeEvent(self, event)
 
@@ -208,14 +235,14 @@ class VideoCard(QWidget):
 
 
         # Time
-        self.timeLabel = QLabel(str(video.duration), self)
-        self.timeLabel.setStyleSheet("color: white; font-size: 10px;")
+        # self.timeLabel = QLabel(str(video.duration), self)
+        # self.timeLabel.setStyleSheet("color: white; font-size: 10px;")
 
         # Add widgets to layout
         self.vBoxLayout.addWidget(self.videoImageLabel)
         self.vBoxLayout.addWidget(self.videoTitleLabel)
         self.vBoxLayout.addWidget(self.viewsLabel)
-        self.vBoxLayout.addWidget(self.timeLabel)
+        # self.vBoxLayout.addWidget(self.timeLabel)
 
         self.vBoxLayout.setContentsMargins(5, 5, 5, 5)
 
