@@ -10,6 +10,7 @@ from queue import Queue
 import threading
 import os
 import subprocess
+import sys
 
 from app.common.communication import Communication
 from app.common.config import cfg
@@ -45,6 +46,8 @@ class DownloadInterface(QWidget):
 
     def _onDownloadCompleted(self, link, location):
         print(f"Download completed: {link} -> {location}")
+        if sys.platform == "win32":
+            os.startfile(location)
 
 class ExampleCard(QWidget):
     def __init__(self, title, widget: QWidget, stretch=1, parent_window=None):
@@ -187,8 +190,9 @@ class CustomMessageBox(MessageBoxBase):
             if "youtube" in link:
                 youtubeObject = YouTube(link)
                 youtubeObject = youtubeObject.streams.get_highest_resolution()
-                youtubeObject.download(location)
+                path = youtubeObject.download(location)
                 print("Download is completed successfully")
+                return path
             elif "m3u8" in link:
                 self.download_m3u8(link, location)
 
@@ -208,8 +212,8 @@ class CustomMessageBox(MessageBoxBase):
             link, location = self.download_queue.get()
 
             # Download the video
-            self.downloadFromLink(link, location)
+            file_path = self.downloadFromLink(link, location)
 
             # Mark the task as done
             self.download_queue.task_done()
-            Communication.instance.downloadCompleted.emit(link, location)
+            Communication.instance.downloadCompleted.emit(link, file_path)

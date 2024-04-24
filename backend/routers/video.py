@@ -71,15 +71,15 @@ def delete_video(video_id: str):
     except Exception as e:
         return ResponseError(message=str(e))
 
-@router.get("/view/{video_id}")
-def view_video(video_id: str = ""):
-    try:
-        video = Video.get(video_id)
-        video.view += 1
-        Video.update(video)
-        return ResponseSuccess(data=video.__dict__())
-    except Exception as e:
-        return ResponseError(message=str(e))
+# @router.get("/view/{video_id}")
+# def view_video(video_id: str = ""):
+#     try:
+#         video = Video.get(video_id)
+#         video.view += 1
+#         Video.update(video)
+#         return ResponseSuccess(data=video.__dict__())
+#     except Exception as e:
+#         return ResponseError(message=str(e))
 
 
 @router.get("/list")
