@@ -137,7 +137,6 @@ class CustomMessageBox(MessageBoxBase):
             # self.musicInThisPCGroup
         )
 
-
         # add widget to view layout
         self.viewLayout.addWidget(self.titleLabel)
 
