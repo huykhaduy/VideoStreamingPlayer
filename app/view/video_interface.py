@@ -17,21 +17,28 @@ class VideoInterface(QWidget):
         self.__initWidget()
 
     def __initWidget(self):
-        # self.setMinimumSize(800, 600)
         self.layout = QVBoxLayout()
         
         self.videoWidget = QVideoWidget()   
         self.mediaPlayer = MediaPlayer(self)
         self.mediaPlayer.setVideoOutput(self.videoWidget)
-        self.mediaPlayer.setMedia(QMediaContent(
-            QUrl("https://d3l1s92l55csfd.cloudfront.net/test/music_video.m3u8")))
+        # self.mediaPlayer.setMedia(QMediaContent(
+        #     QUrl("https://d3l1s92l55csfd.cloudfront.net/test/music_video.m3u8")))
 
         self.playBar = PlayBar()
-        self.playBar.setMediaPlayer(self.mediaPlayer)
+        # self.playBar.setMediaPlayer(self.mediaPlayer)
 
-        self.mediaPlayer.setPlaybackRate(1.0)
+        # self.mediaPlayer.setPlaybackRate(1.0)
 
         self.layout.addWidget(self.videoWidget)
         self.layout.addWidget(self.playBar)
         self.setLayout(self.layout)
+        # self.mediaPlayer.play()
+
+    def setVideoModel(self, video=None):
+        if video is None:
+            return
+        self.mediaPlayer.setMedia(QMediaContent(QUrl(video.url)))
+        self.playBar.setMediaPlayer(self.mediaPlayer)
+        self.mediaPlayer.setPlaybackRate(1.0)
         self.mediaPlayer.play()

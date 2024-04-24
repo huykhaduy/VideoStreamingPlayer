@@ -1,10 +1,9 @@
 from PyQt5.QtCore import Qt, QStandardPaths
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QFrame
 from qfluentwidgets import TitleLabel, BodyLabel, StrongBodyLabel, SubtitleLabel, PushButton, SettingCardGroup, \
-    FolderListSettingCard, PushSettingCard
+    FolderListSettingCard, PushSettingCard, FluentIcon
 
 from app.common.config import cfg
-from qfluentwidgets import FluentIcon as FIF
 
 
 class SettingInterface(QWidget):
@@ -20,42 +19,24 @@ class SettingInterface(QWidget):
         self.vBoxLayout = QVBoxLayout()
         self.vBoxLayout.setSpacing(0)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.title, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.title, 0, Qt.AlignTop)
         self.setLayout(self.vBoxLayout)
 
-        self.selectLocationLayout = QHBoxLayout()
-        self.selectLocationLabel = BodyLabel("Chọn thư mục hiển thị video")
-        self.selectLocationLabel.setContentsMargins(10, 10, 5, 10)
-        self.buttonSelectLocation = PushButton("Chọn thư mục video")
-        self.buttonSelectLocation.setMaximumWidth(200)
-        self.selectLocationLayout.addWidget(self.selectLocationLabel, Qt.AlignLeft)
-        self.selectLocationLayout.addWidget(self.buttonSelectLocation, Qt.AlignRight)
+        self.downloadFolderCard = PushSettingCard(
+            self.tr('Chọn thư mục tải về'),
+            FluentIcon.DOWNLOAD,
+            self.tr("Chỗ lưu video tải về"),
+            cfg.get(cfg.downloadFolder),
+            # self.musicInThisPCGroup
+        )
 
-        self.selectDownloadLocationLayout = QHBoxLayout()
-        self.selectDownloadLocationLabel = BodyLabel("Thư mục tải xuống video")
-        self.selectDownloadLocationLabel.setContentsMargins(10, 5, 5, 10)
-        self.buttonSelectDownloadLocation = PushButton("Chọn thư mục tải xuống")
-        self.buttonSelectDownloadLocation.setMaximumWidth(200)
-        self.selectDownloadLocationLayout.addWidget(self.selectDownloadLocationLabel)
-        self.selectDownloadLocationLayout.addWidget(self.buttonSelectDownloadLocation, Qt.AlignRight)
+        self.musicFolderCard = FolderListSettingCard(
+            cfg.musicFolders,
+            self.tr("Vị trí chứa video trên máy tính"),
+            directory=QStandardPaths.writableLocation(
+                QStandardPaths.MusicLocation),
+        )
+        self.musicFolderCard.addFolderButton.setText("Thêm thư mục nhạc")
 
-        self.vBoxLayout.addLayout(self.selectLocationLayout)
-        self.vBoxLayout.addLayout(self.selectDownloadLocationLayout)
-
-        # music folders
-        # self.musicInThisPCGroup = SettingCardGroup(self.tr("Music on this PC"))
-        #
-        # self.musicFolderCard = FolderListSettingCard(
-        #     cfg.musicFolders,
-        #     self.tr("Local music library"),
-        #     directory=QStandardPaths.writableLocation(
-        #         QStandardPaths.MusicLocation),
-        # )
-        # self.vBoxLayout.addWidget(self.musicFolderCard, Qt.AlignTop)
-        # self.downloadFolderCard = PushSettingCard(
-        #     self.tr('Choose folder'),
-        #     FIF.DOWNLOAD,
-        #     self.tr("Download directory"),
-        #     cfg.get(cfg.downloadFolder),
-        #     self.musicInThisPCGroup
-        # )
+        self.vBoxLayout.addWidget(self.downloadFolderCard, 0, Qt.AlignTop)
+        self.vBoxLayout.addWidget(self.musicFolderCard, 0, Qt.AlignTop)

@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/init")
-def init_stream_video(title: Annotated[str, Form()], max_duration: Annotated[float, Form()]):
+def init_stream_video(title: Annotated[str, Form()], max_duration: Annotated[float, Form()], thumbnail: UploadFile):
     m3u8_file = m3u8.M3U8()
     m3u8_file.version = 3
     m3u8_file.target_duration = max_duration
@@ -26,8 +26,10 @@ def init_stream_video(title: Annotated[str, Form()], max_duration: Annotated[flo
     with open(f"storage/stream/{video_id}.m3u8", "w") as f:
         f.write(m3u8_file.dumps())
 
+    thumbnail_url = uploadSingleFile(thumbnail.file, f"thumbnail/video_{video_id}.{thumbnail.filename.split('.')[-1]}")
+
     url = f"http://127.0.0.1:8000/stream/{video_id}.m3u8"
-    video = Video(video_id=video_id, title=title, duration=0, url=url)
+    video = Video(id=video_id, title=title, duration=0, url=url, thumbnail=thumbnail_url)
     Video.insert(video)
 
     # Broadcast all clients by socket the new video
@@ -71,3 +73,8 @@ def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated
 def get_m3u8(video_id: str):
     path = f"storage/stream/{video_id}.m3u8"
     return FileResponse(path)
+
+
+# @router.get("/list")
+# def list_streaming():
+#     return Video.list_all()
