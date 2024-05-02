@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QUrl, QIODevice, Qt, QFile, QStandardPaths
-from PyQt5.QtGui import QResizeEvent, QFont, QColor, QPixmap,QMouseEvent
+from PyQt5.QtGui import QResizeEvent, QFont, QColor, QPixmap, QMouseEvent, QIcon
 from PyQt5.QtWidgets import QWidget, QScrollArea,QFrame ,QFileDialog, QGridLayout,QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QApplication, QSizePolicy
 from qfluentwidgets import (LineEdit, ExpandLayout,SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,PushSettingCard,
                             TextEdit, FolderValidator, PasswordLineEdit, StrongBodyLabel, MessageBoxBase, SubtitleLabel, ConfigItem, qconfig, QConfig)
@@ -10,7 +10,6 @@ import requests
 
 from app.common.communication import Communication
 from app.model.Video import Video
-import resources
 
 class ListVideoInterface(ScrollArea):
     def __init__(self, parent=None):
@@ -31,7 +30,9 @@ class ListVideoInterface(ScrollArea):
         """)
         self._loadData()
         self.__initWidget()
-        no_image = QPixmap(":/icons/no-image.png")
+        no_image = QPixmap(":/icons/default_video.jpg")
+        print(QIcon(":/icons/default_video.jpg"))
+        # print(":/icons/app-icon.png")
         VideoCard.no_image = no_image
 
     def __initWidget(self):
@@ -253,10 +254,11 @@ class VideoCard(QWidget):
     def loadImage(self, url):
         if url in self.pixmap_cache:
             pixmap = self.pixmap_cache[url]
-            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.IgnoreAspectRatio, Qt.FastTransformation)
             self.videoImageLabel.setPixmap(scaled_pixmap)
         else:
             if self.no_image is not None:
+                self.no_image = self.no_image.scaled(self.width, 150, Qt.IgnoreAspectRatio, Qt.FastTransformation)
                 self.videoImageLabel.setPixmap(self.no_image)
             nam = QNetworkAccessManager(self)
             nam.finished.connect(self.handleFinished)
@@ -269,8 +271,9 @@ class VideoCard(QWidget):
             bytes_string = reply.readAll()
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_string)
-            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.KeepAspectRatio, Qt.FastTransformation)
+            scaled_pixmap = pixmap.scaled(self.width, 150, Qt.IgnoreAspectRatio, Qt.FastTransformation)
             self.pixmap_cache[self.video_image] = scaled_pixmap
+            scaled_pixmap.height()
             self.videoImageLabel.setPixmap(scaled_pixmap)
 
     def enterEvent(self, event):

@@ -8,7 +8,6 @@ from PyQt5.QtCore import QUrl, QSize
 
 from app.common.communication import Communication
 from app.model.Video import Video
-from app.view.local_video_interface import LocalVideoInterface
 from app.view.setting_interface import SettingInterface
 from app.view.download_interface import DownloadInterface
 from app.view.list_video_interface import ListVideoInterface
