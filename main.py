@@ -23,25 +23,33 @@
 #     main()
 import sys
 
+import requests
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from qfluentwidgets import FluentWindow, setTheme, Theme
 
 from app.common.communication import Communication
 from app.view.main_window import MainWindow
 from app.view.video_interface import VideoInterface
+import resources
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+QApplication.processEvents()
 
 app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
-# video = VideoInterface()
-# video.show()
-communication = Communication()
-MainWindow.instance = MainWindow(communication)
-MainWindow.instance.show()
-setTheme(Theme.DARK)
-app.exec_()
+try:
+    Communication.instance = Communication()
+    MainWindow.instance = MainWindow()
+    MainWindow.instance.show()
+    setTheme(Theme.DARK)
+    app.exec_()
+except requests.exceptions.ConnectionError as e:
+    QMessageBox.critical(None, "Lỗi ứng dụng", "Vui lòng chạy server backend và kiểm tra lại url server trong app")
+    sys.exit(1)
+except Exception as e:
+    QMessageBox.critical(None, "Lỗi ứng dụng", str(e))
+    sys.exit(1)

@@ -26,8 +26,7 @@ def create_video(file: UploadFile, thumbnail: UploadFile, title:  Annotated[str,
 
         # Save file to upload folder
         video_uuid = str(shortuuid.uuid())
-        path = f"storage/upload/{video_uuid}_{file.filename}"
-        # Have ../ because current folder is inside router
+        path = f"storage/upload/{video_uuid}.{file.filename.split('.')[-1]}"
         save_file(file, path)
 
         # Create temp folder
@@ -35,18 +34,19 @@ def create_video(file: UploadFile, thumbnail: UploadFile, title:  Annotated[str,
         create_folder_if_not_exists(TEMP_FOLDER)
 
         # Convert file mp4 to hls
-        output_name = file.filename.split(".")[0]
+        # output_name = file.filename.split(".")[0]
+        output_name = "index"
         convertMP4ToHLS(path, f"{TEMP_FOLDER}/{output_name}.m3u8")
 
         # Upload file to AWS
         uploadFileInFolder(f"{TEMP_FOLDER}", f"video/{video_uuid}")
-        uploadSingleFile(thumbnail.file, f"thumbnail/{video_uuid}.{thumbnail.filename.split('.')[-1]}")
+        thumbnail = uploadSingleFile(thumbnail.file, f"thumbnail/{video_uuid}.{thumbnail.filename.split('.')[-1]}")
 
         # Xóa file và folder temp
         os.remove(path)
         shutil.rmtree(TEMP_FOLDER)
         # Save to database
-        video = Video(video_id=video_uuid, title=title, description=description, thumbnail=f"/thumbnail/{video_uuid}", url=f"/video/{video_uuid}/{output_name}.m3u8")
+        video = Video(id=video_uuid, title=title, description=description, thumbnail=thumbnail, url=f"/video/{video_uuid}/{output_name}.m3u8")
         Video.insert(video)
 
         return ResponseSuccess(data=video.__dict__())
@@ -56,7 +56,11 @@ def create_video(file: UploadFile, thumbnail: UploadFile, title:  Annotated[str,
 
 @router.get("/detail/{video_id}")
 def get_video(video_id: str):
-    return Video.get(video_id)
+    video = Video.get(video_id)
+    videoModel = Video.from_dict(video)
+    videoModel.view += 1
+    Video.update(videoModel)
+    return video
 
 
 @router.post("/delete/{video_id}")
@@ -67,7 +71,17 @@ def delete_video(video_id: str):
     except Exception as e:
         return ResponseError(message=str(e))
 
+# @router.get("/view/{video_id}")
+# def view_video(video_id: str = ""):
+#     try:
+#         video = Video.get(video_id)
+#         video.view += 1
+#         Video.update(video)
+#         return ResponseSuccess(data=video.__dict__())
+#     except Exception as e:
+#         return ResponseError(message=str(e))
+
 
 @router.get("/list")
-def list_video():
-    return Video.list_all()
+def list_video(search: str = ""):
+    return Video.list_all(search)

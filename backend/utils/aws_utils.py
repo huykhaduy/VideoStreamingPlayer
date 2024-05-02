@@ -26,3 +26,4 @@ def uploadSingleFile(f: File, target_path: str):
     session = create_session()
     s3 = session.client('s3')
     s3.upload_fileobj(f, os.getenv("DEFAULT_BUCKET"), target_path)
+    return f'{os.getenv("CLOUDFRONT_URL")}/{target_path}'

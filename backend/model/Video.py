@@ -1,6 +1,7 @@
 import datetime
 import os
 from decimal import Decimal
+import json
 
 import shortuuid
 from boto3.dynamodb.conditions import Key, Attr
@@ -9,15 +10,19 @@ from utils.aws_utils import create_session
 
 
 class Video:
-    def __init__(self, video_id="", title="", url="", thumbnail="", duration=0, view=0, description=""):
-        self.id = video_id
+    def __init__(self, id="", title="", url="", thumbnail="", duration=0, view=0, description="", is_streaming=False, created_at=None):
+        self.id = id
         self.title = title
         self.url = url
         self.thumbnail = thumbnail
         self.duration = duration
         self.view = view
-        self.created_at = int(datetime.datetime.now().timestamp())
         self.description = description
+        self.is_streaming = is_streaming
+        if created_at is not None:
+            self.created_at = created_at
+        else:
+            self.created_at = int(datetime.datetime.now().timestamp())
 
     @staticmethod
     def get(video_id: str):
@@ -42,10 +47,15 @@ class Video:
             Key={
                 "id": video.id
             },
-            UpdateExpression="SET title = :title, url = :url, thumbnail = :thumbnail, duration = :duration, view = :view, description = :description",
+            UpdateExpression="SET title = :title, #url = :url, thumbnail = :thumbnail, #dur = :duration, #view = :view, description = :description, is_streaming = :is_streaming",
             ExpressionAttributeValues={":title": video.title, ":url": video.url, ":thumbnail": video.thumbnail,
                                        ":duration": video.duration, ":view": video.view,
-                                       ":description": video.description})
+                                       ":description": video.description, ":is_streaming": video.is_streaming},
+            ExpressionAttributeNames={
+                "#url": "url",
+                "#dur": "duration",
+                "#view": "view"
+            })
 
     @staticmethod
     def delete(video_id: str):
@@ -66,12 +76,13 @@ class Video:
         return {
             "id": self.id,
             "title": self.title,
-            "url": os.getenv("CLOUDFRONT_URL") + self.url,
-            "thumbnail": os.getenv("CLOUDFRONT_URL") + self.thumbnail,
+            "url":  os.getenv("CLOUDFRONT_URL") + self.url if "http" not in self.url else self.url,
+            "thumbnail": os.getenv("CLOUDFRONT_URL") + self.thumbnail if "http" not in self.thumbnail else self.thumbnail,
             "duration": self.duration,
             "view": self.view,
             "created_at": self.created_at,
-            "description": self.description
+            "description": self.description,
+            "is_streaming": self.is_streaming
         }
 
     @staticmethod
@@ -98,3 +109,15 @@ class Video:
             }
         )
         table.wait_until_exists()
+
+    @staticmethod
+    def from_json(json_string):
+        data = json.loads(json_string)
+        if isinstance(data, list):
+            return [Video(**item) for item in data]
+        else:
+            return Video(**data)
+
+    @staticmethod
+    def from_dict(data):
+        return Video(**data)
