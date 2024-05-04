@@ -19,7 +19,10 @@ class Video:
     @staticmethod
     def from_json(json_string):
         try:
-            data = json.loads(json_string)
+            if isinstance(json_string, str):
+                data = json.loads(json_string)
+            else:
+                data = json_string
             if isinstance(data, list):
                 return [Video(**item) for item in data]
             else:
@@ -67,7 +70,8 @@ class Video:
             res = api.post("stream/init",  data=data, files=files)
             
             if res.status_code == 200:
-                return Video.from_json(res.text)
+                print(str(res.json()["data"]))
+                return Video.from_json(res.json()["data"])
             else:
                 print(f"API returned status code {res.status_code}. Error message: {res.text}")
                 return None
