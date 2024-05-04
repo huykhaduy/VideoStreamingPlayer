@@ -6,6 +6,7 @@
     <qresource prefix="icons">
         <file alias="app-icon.png">icons/app-icon.png</file>
         <file alias="no-image.png">icons/no-image.png</file>
+        <file alias="default_video.jpg">icons/default_video.jpg</file>
     </qresource>
 <!--    <qresource prefix="images">-->
 <!--         <file alias="no-image.jpg">images/no_image.jpg</file>-->
