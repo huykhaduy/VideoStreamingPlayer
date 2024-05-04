@@ -1,5 +1,4 @@
-Tạo môi trường ảo (có thể bỏ qua): .venv/bin/activate
-
+# DP Player - Streaming Video Player
 Install lib: 
 
      pip install "PyQt-Fluent-Widgets[full]" -i https://pypi.org/simple/
