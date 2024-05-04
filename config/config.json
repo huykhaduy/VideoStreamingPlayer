@@ -1,9 +1,16 @@
 {
-    "Folders": {
-        "Download": "D:/LuuTruVideo"
+    "Material": {
+        "AcrylicBlurRadius": 15
     },
-    "QFluentWidgets": {
-        "ThemeColor": "#ff009faa",
-        "ThemeMode": "Dark"
-    }
-}
+    "Update": {
+        "CheckUpdateAtStartUp": true
+    },
+    "Folders": {
+        "Download": "/media/phuc/New Volume/VideoStreamingPlayer/recordings",
+        "LocalMusic": []
+    },
+    "MainWindow": {
+        "DpiScale": "Auto",
+        "Language": "Auto",
+        "MicaEnabled": false,
+        "ThemeMode": 

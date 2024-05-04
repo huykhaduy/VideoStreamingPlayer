@@ -12,6 +12,7 @@ from app.view.local_video_interface import LocalVideoInterface
 from app.view.setting_interface import SettingInterface
 from app.view.download_interface import DownloadInterface
 from app.view.list_video_interface import ListVideoInterface
+from app.view.livestream_interface import LivestreamInterface
 
 from qfluentwidgets import FluentIcon as FIF
 
@@ -27,6 +28,7 @@ class MainWindow(FluentWindow):
         self.listVideoInterface = ListVideoInterface()
         self.settingInterface = SettingInterface()
         self.videoInterface = VideoInterface()
+        self.livestreamInterface = LivestreamInterface()
         # self.localVideoInterface = LocalVideoInterface()
 
 
@@ -65,6 +67,8 @@ class MainWindow(FluentWindow):
         self.addSubInterface(self.listVideoInterface, FIF.HOME, "Trang chủ", pos)
         self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, "Tải xuống", pos)
         self.addSubInterface(self.videoInterface, FIF.VIDEO, "Đang xem", pos)
+        self.addSubInterface(self.livestreamInterface, FIF.CONNECT, "Streaming", pos)
+
 
         self.addSubInterface(self.settingInterface, FIF.SETTING, "Cài đặt", bottom)
 
