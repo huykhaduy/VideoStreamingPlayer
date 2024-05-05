@@ -10,7 +10,7 @@ from utils.aws_utils import create_session
 
 
 class Video:
-    def __init__(self, id="", title="", url="", thumbnail="", duration=0, view=0, description="", is_streaming=False, created_at=None):
+    def __init__(self, id="", title="", url="", thumbnail="", duration=0, view=0, description="", is_streaming=False, is_hidden=False, created_at=None):
         self.id = id
         self.title = title
         self.url = url
@@ -19,6 +19,7 @@ class Video:
         self.view = view
         self.description = description
         self.is_streaming = is_streaming
+        self.is_hidden = is_hidden
         if created_at is not None:
             self.created_at = created_at
         else:
@@ -47,10 +48,10 @@ class Video:
             Key={
                 "id": video.id
             },
-            UpdateExpression="SET title = :title, #url = :url, thumbnail = :thumbnail, #dur = :duration, #view = :view, description = :description, is_streaming = :is_streaming",
+            UpdateExpression="SET title = :title, #url = :url, thumbnail = :thumbnail, #dur = :duration, #view = :view, description = :description, is_streaming = :is_streaming, is_hidden = :is_hidden",
             ExpressionAttributeValues={":title": video.title, ":url": video.url, ":thumbnail": video.thumbnail,
                                        ":duration": video.duration, ":view": video.view,
-                                       ":description": video.description, ":is_streaming": video.is_streaming},
+                                       ":description": video.description, ":is_streaming": video.is_streaming, ":is_hidden": video.is_hidden},
             ExpressionAttributeNames={
                 "#url": "url",
                 "#dur": "duration",
@@ -68,7 +69,7 @@ class Video:
         session = create_session()
         db = session.resource("dynamodb")
         scan_kwargs = {
-            'FilterExpression': Attr('title').contains(search)
+            'FilterExpression': Attr('title').contains(search) & Attr('is_hidden').eq(False)
         }
         return db.Table("Video").scan(**scan_kwargs)["Items"]
 
@@ -82,7 +83,8 @@ class Video:
             "view": self.view,
             "created_at": self.created_at,
             "description": self.description,
-            "is_streaming": self.is_streaming
+            "is_streaming": self.is_streaming,
+            'is_hidden': self.is_hidden
         }
 
     @staticmethod

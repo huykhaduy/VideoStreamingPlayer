@@ -5,7 +5,7 @@ from PyQt5.QtCore import QFile
 import base64
 
 class Video:
-    def __init__(self, id, title="", url="", thumbnail="", view=0, duration=0, description="", is_streaming=False, created_at=0):
+    def __init__(self, id, title="", url="", thumbnail="", view=0, duration=0, description="", is_streaming=False, is_hidden = False, created_at=0):
         self.id = id
         self.title = title
         self.thumbnail = thumbnail
@@ -15,6 +15,7 @@ class Video:
         self.is_streaming = is_streaming
         self.created_at = created_at
         self.description = description
+        self.is_hidden = is_hidden
 
     @staticmethod
     def from_json(json_string):
@@ -81,11 +82,10 @@ class Video:
 
 
     @staticmethod
-    def upload_stream(video_id, file, duration):
-        data = {'duration': duration}
-        files = {'file': file}
+    def upload_stream(video_id, file, mu3u8_file):
+        files = {'file': file, 'm3u8_file': mu3u8_file}
         api = APIInterceptor()
-        res = api.post(f"stream/update/{video_id}", data=data, files=files)
+        res = api.post(f"stream/update/{video_id}", files=files)
         if 200 <= res.status_code < 300:
             print("Success! Status code:", res.status_code)
         elif 400 <= res.status_code < 500:

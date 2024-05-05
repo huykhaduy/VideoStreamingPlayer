@@ -3,6 +3,7 @@ import glob
 
 from PyQt5.QtCore import QUrl, QIODevice, Qt, QFile, QStandardPaths
 from PyQt5.QtGui import QResizeEvent, QFont, QColor, QPixmap,QMouseEvent
+from PyQt5.QtMultimedia import QMediaContent
 from PyQt5.QtWidgets import QWidget,QMessageBox, QScrollArea,QFrame ,QFileDialog, QGridLayout,QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QCheckBox,QApplication, QSizePolicy
 from qfluentwidgets import (LineEdit, ExpandLayout,SpinBox, DoubleSpinBox, TimeEdit, DateTimeEdit, DateEdit,PushSettingCard,
                             TextEdit, FolderValidator, PasswordLineEdit, StrongBodyLabel, MessageBoxBase, SubtitleLabel, ConfigItem, qconfig, QConfig)
@@ -36,7 +37,8 @@ class LivestreamInterface(QWidget):
         self.timer.timeout.connect(self.capture_screen)
 
         os.makedirs(cfg.get(cfg.recordFolder), exist_ok=True)
-        self.output_file = os.path.join(cfg.get(cfg.recordFolder), "recorded_screen%d.mp4")
+        self.output_file = os.path.join(cfg.get(cfg.recordFolder), "recorded_screen%d.ts")
+        self.m3u8_file = os.path.join(cfg.get(cfg.recordFolder), "index.m3u8")
 
         self.ffmpeg_process = None
         self.record_start_time = None
@@ -119,6 +121,14 @@ class LivestreamInterface(QWidget):
 
         self.setLayout(self.layout)
 
+    def setVideoModel(self, video=None):
+        if video is None:
+            return
+
+        self.mediaPlayer.setMedia(QMediaContent(QUrl(video.url)))
+        self.playBar.setMediaPlayer(self.mediaPlayer)
+        self.mediaPlayer.setPlaybackRate(1.0)
+
     def ___onChooseFileCardClicked(self):
         file_dialog = QFileDialog(self)
         file_dialog.setNameFilter("Images (*.png *.jpg *.jpeg)")
@@ -135,17 +145,17 @@ class LivestreamInterface(QWidget):
 
         title = self.titleInput.text()
         thumbnail = self.thumbnail_file_path  # Sử dụng đường dẫn của file thumbnail đã lưu
-        video = Video.init_stream_video(title, 15, thumbnail)
+        video = Video.init_stream_video(title, 5, thumbnail)
+        print("Video link: ", video.url)
 
         if video:
+            self.setVideoModel(video)
             # Bắt đầu quay video
             self.ffmpeg_command = [
-                'ffmpeg', '-y',
-                '-video_size', '1920x1080', '-framerate', '30', '-f', 'x11grab', '-i', ':0',
-                '-f', 'video4linux2', '-i', '/dev/video0',
-                '-f', 'alsa', '-ac', '2', '-i', 'hw:0',
-                '-c:v', 'libx264', '-g', '60', '-keyint_min', '2',
-                '-f', 'segment', '-segment_time', '2', '-reset_timestamps', '1', self.output_file,
+                "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":0",
+                "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:0",
+                "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
+                "-hls_list_size", "4", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file, self.m3u8_file
             ]
 
             if self.use_webcam_checkbox.isChecked():
@@ -153,7 +163,7 @@ class LivestreamInterface(QWidget):
                 '-filter_complex', '[1:v]scale=320:-1 [webcam]; [0:v][webcam]overlay=W-w-10:H-h-10',
                 ])
 
-            self.upload_thread = UploadThread(video.id, self.output_file)
+            self.upload_thread = UploadThread(video.id, self.output_file, self.m3u8_file)
             self.upload_thread.start()
 
             self.ffmpeg_process = subprocess.Popen(self.ffmpeg_command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -184,10 +194,11 @@ class LivestreamInterface(QWidget):
 
 
 class UploadThread(threading.Thread):
-    def __init__(self, video_id, file_path):
+    def __init__(self, video_id, file_path, m3u8_path):
         super().__init__()
         self.video_id = video_id
         self.file_path = file_path
+        self.m3u8_path = m3u8_path
         self.index = 0
         self.running = True
 
@@ -198,30 +209,27 @@ class UploadThread(threading.Thread):
             if not os.path.isfile(upload_file):
                 time.sleep(1)
                 continue
-            print("AS: "+str( os.path.isfile(upload_file)))
-            duration = self.calculate_duration(upload_file)
-            if duration is not None:
-                with open(upload_file, 'rb') as file:
-                    Video.upload_stream(self.video_id, file, duration)
-                    self.index += 1
-            else:
-                print(f"Không thể xác định duration cho video {upload_file}")
-                time.sleep(1)
-        print("UploadThread has finished its work")
+            with open(upload_file, "rb") as f:
+                with open(self.m3u8_path, "rb") as m3u8:
+                    Video.upload_stream(self.video_id, f, m3u8)
+            self.index += 1
+            time.sleep(1)
 
-    def calculate_duration(self, file_path):
-        command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-                   '-of', 'default=noprint_wrappers=1:nokey=1', file_path]
-        try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            duration = float(output)
-            return duration
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e.output}")
-            return None
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+    # def calculate_duration(self, file_path):
+    #     command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+    #                '-of', 'default=noprint_wrappers=1:nokey=1', file_path]
+    #     try:
+    #         output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    #         duration = float(output)
+    #         return duration
+    #     except subprocess.CalledProcessError as e:
+    #         print(f"Error: {e.output}")
+    #         return None
+    #     except Exception as e:
+    #         print(f"Error: {e}")
+    #         return None
 
     def stop(self):
         self.running = False
+        with open(self.m3u8_path, "rb") as m3u8:
+            Video.upload_stream(self.video_id, None, m3u8)

@@ -18,37 +18,46 @@ class FullScreenButton(MediaPlayBarButton):
 
 
 class PlayBar(SimpleMediaPlayBar):
-    def __init__(self):
+    def __init__(self, is_live=False):
         super().__init__()
         self.hBoxLayout.removeWidget(self.progressSlider)
         self.hBoxLayout.removeWidget(self.volumeButton)
+        self.is_live = is_live
 
-        self.currentTimerLabel = QLabel("00:00")
-        self.endTimerLabel = QLabel("00:00")
+        self.currentTimerLabel = QLabel("00:00:00")
+        self.endTimerLabel = QLabel("00:00:00")
         self.currentTimerLabel.setStyleSheet("color: white")
         self.endTimerLabel.setStyleSheet("color: white")
         self.fullScreenButton = FullScreenButton()
 
-        self.menu = RoundMenu(parent=self)
-        self.menu.addAction(QAction('0.5'))
-        self.menu.addAction(QAction('1.0'))
-        self.menu.addAction(QAction('1.5'))
-        self.menu.addAction(QAction('2.0'))
-
-        self.transparentDropDownToolButton = TransparentDropDownToolButton(FIF.SPEED_OFF, self)
-        self.transparentDropDownToolButton.setMenu(self.menu)
-        self.menu.triggered.connect(self._onSpeedChanged)
-
-        self.fullScreenButton.clicked.connect(self._toggleFullScreen)
+        if (self.is_live):
+            self.liveLabel = QLabel("Live video")
+            self.liveLabel.setStyleSheet("color: white")
+            self.hBoxLayout.addWidget(self.liveLabel, 0, Qt.AlignLeft)
 
         self.hBoxLayout.addWidget(self.volumeButton, 0)
-        self.hBoxLayout.addWidget(self.currentTimerLabel, 0)
-        self.hBoxLayout.addWidget(self.progressSlider, 1)
-        self.hBoxLayout.addWidget(self.endTimerLabel, 0)
+        self.fullScreenButton.clicked.connect(self._toggleFullScreen)
 
-        self.addButton(self.transparentDropDownToolButton)
 
+        if (not self.is_live):
+            self.menu = RoundMenu(parent=self)
+            self.menu.addAction(QAction('0.5'))
+            self.menu.addAction(QAction('1.0'))
+            self.menu.addAction(QAction('1.5'))
+            self.menu.addAction(QAction('2.0'))
+            self.transparentDropDownToolButton = TransparentDropDownToolButton(FIF.SPEED_OFF, self)
+            self.transparentDropDownToolButton.setMenu(self.menu)
+            self.menu.triggered.connect(self._onSpeedChanged)
+
+            self.hBoxLayout.addWidget(self.currentTimerLabel, 0)
+            self.hBoxLayout.addWidget(self.progressSlider, 1)
+            self.hBoxLayout.addWidget(self.endTimerLabel, 0)
+            self.addButton(self.transparentDropDownToolButton)
+        else:
+            self.hBoxLayout.removeWidget(self.progressSlider)
+            self.progressSlider.hide()
         self.addButton(self.fullScreenButton)
+
         self.playButton.clicked.connect(self.togglePlay)
         FluentStyleSheet.MEDIA_PLAYER.apply(self)
 
