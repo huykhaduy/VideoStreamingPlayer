@@ -36,6 +36,9 @@ class Config(QConfig):
         "Folders", "LocalMusic", [], FolderListValidator())
     downloadFolder = ConfigItem(
         "Folders", "Download", "app/download", FolderValidator())
+
+    recordFolder = ConfigItem(
+        "Folders", "Record", "app/recordings", FolderValidator())
     
     # isFirstRun
     isFirstDownload = ConfigItem("Folders", "FirstDownload", True, BoolValidator())

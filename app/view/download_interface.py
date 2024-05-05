@@ -87,10 +87,9 @@ class DownloadInterface(QWidget):
             youtubeObject = YouTube(link)
             youtubeObject = youtubeObject.streams.get_highest_resolution()
             path = youtubeObject.download(location)
-            print("Download is completed successfully")
             return path
         elif download_type == "m3u8":
-            self.download_m3u8(link, location)
+            return None
 
 
 class DownloadCard(QWidget):

@@ -46,7 +46,7 @@ def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated
             upload_url = ""
             length = len(playlist.segments)
             if length < 4:
-                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{length}.ts")
+                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{length}.mp4")
                 if length == 0:
                     playlist.media_sequence = 0
                 else:
@@ -54,7 +54,7 @@ def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated
             elif length >= 4:
                 playlist.segments.pop(0)
                 playlist.media_sequence += 1
-                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{playlist.media_sequence}.ts")
+                upload_url = uploadSingleFile(file.file, f"stream/{video_id}/{playlist.media_sequence}.mp4")
 
             segment = m3u8.Segment(uri=upload_url, duration=duration)
             playlist.segments.append(segment)
@@ -64,8 +64,7 @@ def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated
         with open(path, "w") as f:
             f.write(playlist.dumps())
 
-        video = Video.get(video_id)
-        return ResponseSuccess()
+        return ResponseSuccess(message="Upload successfully!")
     except Exception as e:
         return ResponseError(message=str(e))
 

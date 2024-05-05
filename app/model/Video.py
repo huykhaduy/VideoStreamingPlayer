@@ -86,5 +86,10 @@ class Video:
         files = {'file': file}
         api = APIInterceptor()
         res = api.post(f"stream/update/{video_id}", data=data, files=files)
-        return Video.from_json(res.text)
+        if 200 <= res.status_code < 300:
+            print("Success! Status code:", res.status_code)
+        elif 400 <= res.status_code < 500:
+            print("Client error! Status code:", res.status_code)
+        else:
+            print("Other status code:", res.status_code)
 

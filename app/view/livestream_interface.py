@@ -1,3 +1,6 @@
+import time
+import glob
+
 from PyQt5.QtCore import QUrl, QIODevice, Qt, QFile, QStandardPaths
 from PyQt5.QtGui import QResizeEvent, QFont, QColor, QPixmap,QMouseEvent
 from PyQt5.QtWidgets import QWidget,QMessageBox, QScrollArea,QFrame ,QFileDialog, QGridLayout,QHBoxLayout,QVBoxLayout, QLabel, QPushButton, QLineEdit, QCheckBox,QApplication, QSizePolicy
@@ -32,15 +35,12 @@ class LivestreamInterface(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.capture_screen)
 
-        self.output_folder = "recordings"
-        os.makedirs(self.output_folder, exist_ok=True)
-        self.output_file = os.path.join(self.output_folder, "recorded_screen%03d.mp4")
+        os.makedirs(cfg.get(cfg.recordFolder), exist_ok=True)
+        self.output_file = os.path.join(cfg.get(cfg.recordFolder), "recorded_screen%d.mp4")
 
         self.ffmpeg_process = None
         self.record_start_time = None
-        self.thumbnail_file_path = ""  
-
-
+        self.thumbnail_file_path = ""
 
     def __initWidget(self):
         self.layout = QVBoxLayout()
@@ -67,8 +67,6 @@ class LivestreamInterface(QWidget):
 
         self.use_webcam_checkbox = QCheckBox("Webcam mở livestream")
         self.use_webcam_checkbox.setStyleSheet("color: white;")
-
-   
 
         self.titleLabelThumb = SubtitleLabel(self.tr('Chọn file thumbnail'), self)
         self.thumbFileCard = PushSettingCard(
@@ -133,21 +131,19 @@ class LivestreamInterface(QWidget):
     def start_recording(self):
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
+        self.delete_all_files_in_folder(cfg.get(cfg.recordFolder))
 
         title = self.titleInput.text()
         thumbnail = self.thumbnail_file_path  # Sử dụng đường dẫn của file thumbnail đã lưu
         video = Video.init_stream_video(title, 15, thumbnail)
 
-        print("Video:", video.id)
-
         if video:
-
             # Bắt đầu quay video
             self.ffmpeg_command = [
                 'ffmpeg', '-y',
-                '-video_size', '1920x1080', '-framerate', '30', '-f', 'x11grab', '-i', ':1',
+                '-video_size', '1920x1080', '-framerate', '30', '-f', 'x11grab', '-i', ':0',
                 '-f', 'video4linux2', '-i', '/dev/video0',
-                '-f', 'alsa', '-ac', '2', '-i', 'hw:1',
+                '-f', 'alsa', '-ac', '2', '-i', 'hw:0',
                 '-c:v', 'libx264', '-g', '60', '-keyint_min', '2',
                 '-f', 'segment', '-segment_time', '2', '-reset_timestamps', '1', self.output_file,
             ]
@@ -157,10 +153,10 @@ class LivestreamInterface(QWidget):
                 '-filter_complex', '[1:v]scale=320:-1 [webcam]; [0:v][webcam]overlay=W-w-10:H-h-10',
                 ])
 
-            self.ffmpeg_process = subprocess.Popen(self.ffmpeg_command)
+            self.upload_thread = UploadThread(video.id, self.output_file)
+            self.upload_thread.start()
 
-            upload_thread = UploadThread(video.id, self.output_file)
-            upload_thread.start()
+            self.ffmpeg_process = subprocess.Popen(self.ffmpeg_command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
             self.record_start_time = QTime.currentTime()
 
@@ -175,11 +171,16 @@ class LivestreamInterface(QWidget):
 
         # Kết thúc quay video
         self.ffmpeg_process.terminate()
-
-        print("Video đã được ghi lại và lưu vào:", self.output_folder)
+        self.upload_thread.stop()
+        self.upload_thread.join()
 
     def capture_screen(self):
         pass
+
+    def delete_all_files_in_folder(self, folder_path):
+        files = glob.glob(f'{folder_path}/*')
+        for file in files:
+            os.remove(file)
 
 
 class UploadThread(threading.Thread):
@@ -187,15 +188,26 @@ class UploadThread(threading.Thread):
         super().__init__()
         self.video_id = video_id
         self.file_path = file_path
+        self.index = 0
+        self.running = True
 
     def run(self):
-
-        duration = self.calculate_duration(self.file_path)
-        if duration is not None:
-            with open(self.file_path, 'rb') as file:
-                Video.upload_stream(self.video_id, file, duration)
-        else:
-            print(f"Không thể xác định duration cho video {self.file_path}")
+        while self.running:
+            # Check index file exists
+            upload_file = self.file_path % self.index
+            if not os.path.isfile(upload_file):
+                time.sleep(1)
+                continue
+            print("AS: "+str( os.path.isfile(upload_file)))
+            duration = self.calculate_duration(upload_file)
+            if duration is not None:
+                with open(upload_file, 'rb') as file:
+                    Video.upload_stream(self.video_id, file, duration)
+                    self.index += 1
+            else:
+                print(f"Không thể xác định duration cho video {upload_file}")
+                time.sleep(1)
+        print("UploadThread has finished its work")
 
     def calculate_duration(self, file_path):
         command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
@@ -210,3 +222,6 @@ class UploadThread(threading.Thread):
         except Exception as e:
             print(f"Error: {e}")
             return None
+
+    def stop(self):
+        self.running = False
