@@ -22,8 +22,8 @@ class APIInterceptor:
         headers = {**self.headers, **(headers if headers else {})}
         response = requests.post(self.base_url + endpoint, headers=headers, data=data, files=files)
         self.log(response)
-        print("Response Content:", response.content)
-        print("Response Headers:", response.headers)
+        # print("Response Content:", response.content)
+        # print("Response Headers:", response.headers)
         return response
     
     # def post(self, endpoint, headers=None, data=None, files=None):

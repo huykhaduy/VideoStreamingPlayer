@@ -70,7 +70,7 @@ class Video:
             res = api.post("stream/init",  data=data, files=files)
             
             if res.status_code == 200:
-                print(str(res.json()["data"]))
+                # print(str(res.json()["data"]))
                 return Video.from_json(res.json()["data"])
             else:
                 print(f"API returned status code {res.status_code}. Error message: {res.text}")

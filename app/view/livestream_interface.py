@@ -12,6 +12,9 @@ from qfluentwidgets.multimedia import VideoWidget, StandardMediaPlayBar, MediaPl
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 from app.model.Video import Video
+import subprocess
+import os
+import threading
 
 from app.component.play_bar import PlayBar
 from PyQt5.QtCore import QTimer, QTime
@@ -31,7 +34,7 @@ class LivestreamInterface(QWidget):
 
         self.output_folder = "recordings"
         os.makedirs(self.output_folder, exist_ok=True)
-        self.output_file = os.path.join(self.output_folder, "recorded_screen%d.mp4")
+        self.output_file = os.path.join(self.output_folder, "recorded_screen%03d.mp4")
 
         self.ffmpeg_process = None
         self.record_start_time = None
@@ -135,15 +138,18 @@ class LivestreamInterface(QWidget):
         thumbnail = self.thumbnail_file_path  # Sử dụng đường dẫn của file thumbnail đã lưu
         video = Video.init_stream_video(title, 15, thumbnail)
 
+        print("Video:", video.id)
+
         if video:
 
             # Bắt đầu quay video
             self.ffmpeg_command = [
                 'ffmpeg', '-y',
-                '-video_size', '1920x1080', '-framerate', '25', '-f', 'x11grab', '-i', ':1',
+                '-video_size', '1920x1080', '-framerate', '30', '-f', 'x11grab', '-i', ':1',
                 '-f', 'video4linux2', '-i', '/dev/video0',
                 '-f', 'alsa', '-ac', '2', '-i', 'hw:1',
-                '-f', 'segment', '-segment_time', '5', '-reset_timestamps', '1', self.output_file,
+                '-c:v', 'libx264', '-g', '60', '-keyint_min', '2',
+                '-f', 'segment', '-segment_time', '2', '-reset_timestamps', '1', self.output_file,
             ]
 
             if self.use_webcam_checkbox.isChecked():
@@ -152,6 +158,9 @@ class LivestreamInterface(QWidget):
                 ])
 
             self.ffmpeg_process = subprocess.Popen(self.ffmpeg_command)
+
+            upload_thread = UploadThread(video.id, self.output_file)
+            upload_thread.start()
 
             self.record_start_time = QTime.currentTime()
 
@@ -171,3 +180,33 @@ class LivestreamInterface(QWidget):
 
     def capture_screen(self):
         pass
+
+
+class UploadThread(threading.Thread):
+    def __init__(self, video_id, file_path):
+        super().__init__()
+        self.video_id = video_id
+        self.file_path = file_path
+
+    def run(self):
+
+        duration = self.calculate_duration(self.file_path)
+        if duration is not None:
+            with open(self.file_path, 'rb') as file:
+                Video.upload_stream(self.video_id, file, duration)
+        else:
+            print(f"Không thể xác định duration cho video {self.file_path}")
+
+    def calculate_duration(self, file_path):
+        command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+                   '-of', 'default=noprint_wrappers=1:nokey=1', file_path]
+        try:
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            duration = float(output)
+            return duration
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e.output}")
+            return None
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
