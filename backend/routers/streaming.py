@@ -61,9 +61,10 @@ def upload_stream(video_id: str, file: Optional[UploadFile], duration: Annotated
         else:
             playlist.is_endlist = True
             # Broadcast all clients by socket the video is end
-
         with open(path, "w") as f:
             f.write(playlist.dumps())
+
+        video = Video.get(video_id)
         return ResponseSuccess()
     except Exception as e:
         return ResponseError(message=str(e))

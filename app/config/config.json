@@ -6,11 +6,17 @@
         "CheckUpdateAtStartUp": true
     },
     "Folders": {
-        "Download": "/media/phuc/New Volume/VideoStreamingPlayer/recordings",
+        "Download": "/home/duy/Downloads",
+        "FirstDownload": false,
         "LocalMusic": []
     },
     "MainWindow": {
         "DpiScale": "Auto",
         "Language": "Auto",
-        "MicaEnabled": false,
-        "ThemeMode": 
+        "MicaEnabled": false
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Dark"
+    }
+}

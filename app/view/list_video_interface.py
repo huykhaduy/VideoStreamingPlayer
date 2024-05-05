@@ -30,18 +30,18 @@ class ListVideoInterface(ScrollArea):
         """)
         self._loadData()
         self.__initWidget()
-        no_image = QPixmap(":/icons/default_video.jpg")
-        print(QIcon(":/icons/default_video.jpg"))
+        no_image = QPixmap("app/resources/icons/no-image.png")
+        # print(QIcon(":/icons/default_video.jpg"))
         # print(":/icons/app-icon.png")
         VideoCard.no_image = no_image
 
     def __initWidget(self):
         self.lineEdit = LineEdit(self)
-        self.lineEdit.setText(self.tr(''))
         self.lineEdit.setClearButtonEnabled(True)
-        self.lineEdit.setPlaceholderText(self.tr('Tên video, mô tả, ...'))
+        # self.lineEdit.setPlaceholderText(self.tr('Tên video, mô tả, ...'))
         self.lineEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
+        # self.reloadButton = PushButton(FluentIcon.SYNC, "Refresh")
         self.searchButton = PushButton(
             self.tr('Tìm kiếm'), self, FluentIcon.SEARCH)
         
@@ -49,6 +49,7 @@ class ListVideoInterface(ScrollArea):
         self.searchWidget = QWidget()
         hBoxLayout = QHBoxLayout()
         hBoxLayout.addWidget(self.lineEdit)
+        # hBoxLayout.addWidget(self.reloadButton)
         hBoxLayout.addWidget(self.searchButton)
         
         # Add the horizontal layout to the vertical layout
@@ -98,11 +99,16 @@ class ListVideoInterface(ScrollArea):
         self.vBoxLayout.addWidget(self.vodVideoWidget, 0, Qt.AlignTop)
 
         self.searchButton.clicked.connect(self._onSearch)
+        # self.reloadButton.clicked.connect(self._onReload)
 
     def _loadData(self, search=""):
         videos = Video.getListVideo(search)
         self.streaming_videos = [video for video in videos if video.is_streaming]
         self.vod_videos = [video for video in videos if not video.is_streaming]
+
+    def _onReload(self):
+        self._loadData("")
+        self.updateGridLayouts()
 
     def _onSearch(self):
         self._loadData(self.lineEdit.text())
@@ -137,37 +143,6 @@ class ListVideoInterface(ScrollArea):
             self.vodVideoWidget.hide()
 
         self.update()
-
-    # def updateGridLayout1(self):
-    #     video_cards_data = [
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #          ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #         ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #          ("https://s3.tebi.io/test-bucket-31292/9551328.jpg", "Video Title 1", "2000", "12:00"),
-    #     ]
-    #     self.updateGridLayout(self.gridLayout, video_cards_data, 'showMore')
-    #
-    # def updateGridLayout2(self):
-    #     video_cards_data = [
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #         ("", "Video Title 2", "2000", "12:00"),
-    #     ]
-    #     self.updateGridLayout(self.gridLayout2, video_cards_data, 'showMore2')
 
     def updateGridLayout(self, grid_layout, video_cards_data, show_key):
         self.clearGridLayout(grid_layout)

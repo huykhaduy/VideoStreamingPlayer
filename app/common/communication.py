@@ -6,4 +6,6 @@ class Communication(QObject):
     instance = None
     videoFullScreenToggle = pyqtSignal()
     downloadCompleted = pyqtSignal(str, str)
+    downloadStarted = pyqtSignal(str)
     openVideoChanged = pyqtSignal(str)
+    addVideoToQueue = pyqtSignal(str, str, str)

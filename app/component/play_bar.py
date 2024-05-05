@@ -20,8 +20,8 @@ class FullScreenButton(MediaPlayBarButton):
 class PlayBar(SimpleMediaPlayBar):
     def __init__(self):
         super().__init__()
-        # self.hBoxLayout.removeWidget(self.progressSlider)
-        # self.hBoxLayout.removeWidget(self.volumeButton)
+        self.hBoxLayout.removeWidget(self.progressSlider)
+        self.hBoxLayout.removeWidget(self.volumeButton)
 
         self.currentTimerLabel = QLabel("00:00")
         self.endTimerLabel = QLabel("00:00")
@@ -63,9 +63,9 @@ class PlayBar(SimpleMediaPlayBar):
 
         self.player.durationChanged.connect(self._onDurationChanged)
         self.player.positionChanged.connect(self._onPositionChanged)
-        self.progressSlider.sliderMoved.disconnect()
-        self.progressSlider.sliderPressed.connect(self._startChangePosition)
-        self.progressSlider.sliderReleased.connect(self._changePosition)
+        # self.progressSlider.sliderMoved.disconnect()
+        # self.progressSlider.sliderPressed.connect(self._startChangePosition)
+        # self.progressSlider.sliderReleased.connect(self._changePosition)
 
 
     def _toggleFullScreen(self):

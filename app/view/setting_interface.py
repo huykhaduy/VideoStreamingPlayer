@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QStandardPaths
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QFrame, QFileDialog
 from qfluentwidgets import TitleLabel, BodyLabel, StrongBodyLabel, SubtitleLabel, PushButton, SettingCardGroup, \
     FolderListSettingCard, PushSettingCard, FluentIcon
 
@@ -23,20 +23,29 @@ class SettingInterface(QWidget):
         self.setLayout(self.vBoxLayout)
 
         self.downloadFolderCard = PushSettingCard(
-            self.tr('Chọn thư mục tải về'),
+            self.tr('Chỗ lưu video tải về"'),
             FluentIcon.DOWNLOAD,
             self.tr("Chỗ lưu video tải về"),
             cfg.get(cfg.downloadFolder),
-            # self.musicInThisPCGroup
         )
 
-        self.musicFolderCard = FolderListSettingCard(
-            cfg.musicFolders,
-            self.tr("Vị trí chứa video trên máy tính"),
-            directory=QStandardPaths.writableLocation(
-                QStandardPaths.MusicLocation),
-        )
-        self.musicFolderCard.addFolderButton.setText("Thêm thư mục nhạc")
+        # self.musicFolderCard = FolderListSettingCard(
+        #     cfg.musicFolders,
+        #     self.tr("Vị trí chứa video trên máy tính"),
+        #     directory=QStandardPaths.writableLocation(
+        #         QStandardPaths.MusicLocation),
+        # )
+        # self.musicFolderCard.addFolderButton.setText("Thêm thư mục nhạc")
 
         self.vBoxLayout.addWidget(self.downloadFolderCard, 0, Qt.AlignTop)
-        self.vBoxLayout.addWidget(self.musicFolderCard, 0, Qt.AlignTop)
+        # self.vBoxLayout.addWidget(self.musicFolderCard, 0, Qt.AlignTop)
+
+        self.downloadFolderCard.clicked.connect(self._onDownloadFolderClicked)
+
+    def _onDownloadFolderClicked(self):
+        folder = QFileDialog.getExistingDirectory(
+            self, self.tr("Chọn thư mục tải về"), cfg.get(cfg.downloadFolder))
+        if folder:
+            cfg.set(cfg.downloadFolder, folder)
+            self.downloadFolderCard.setContent(folder)
+        self.downloadFolderCard.setFocus()

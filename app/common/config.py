@@ -37,7 +37,8 @@ class Config(QConfig):
     downloadFolder = ConfigItem(
         "Folders", "Download", "app/download", FolderValidator())
     
-    
+    # isFirstRun
+    isFirstDownload = ConfigItem("Folders", "FirstDownload", True, BoolValidator())
 
     # main window
     micaEnabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
@@ -52,8 +53,6 @@ class Config(QConfig):
     # software update
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
 
-    themeMode = OptionsConfigItem("MainWindow", "ThemeMode", Theme.DARK, OptionsValidator(Theme), restart=True)
-
 
 YEAR = 2024
 AUTHOR = "huykhaduy"
@@ -63,5 +62,5 @@ VERSION = "1.0.0"
 
 
 cfg = Config()
-
-# qconfig.load('app/config/config.json', cfg)
+cfg.themeMode.value = Theme.DARK
+qconfig.load('app/config/config.json', cfg)
