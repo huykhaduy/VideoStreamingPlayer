@@ -15,6 +15,7 @@ from qfluentwidgets.multimedia import VideoWidget, StandardMediaPlayBar, MediaPl
 
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 
+from app.common.communication import Communication
 from app.model.Video import Video
 import subprocess
 import os
@@ -42,7 +43,7 @@ class LivestreamInterface(QWidget):
 
         self.ffmpeg_process = None
         self.record_start_time = None
-        self.thumbnail_file_path = ""
+        self.thumbnail_file_path = "app/resources/icons/no-image.png"
 
     def __initWidget(self):
         self.layout = QVBoxLayout()
@@ -69,15 +70,7 @@ class LivestreamInterface(QWidget):
 
         self.use_webcam_checkbox = QCheckBox("Webcam mở livestream")
         self.use_webcam_checkbox.setStyleSheet("color: white;")
-
-        self.titleLabelThumb = SubtitleLabel(self.tr('Chọn file thumbnail'), self)
-        self.thumbFileCard = PushSettingCard(
-                    self.tr('Choose file'),
-                    FluentIcon.UP,
-                    self.tr("Choose file"),
-                    cfg.get(cfg.downloadFolder),
-                    # self.musicInThisPCGroup
-                )
+        self.thumbFileCard = PushButton(self.tr('Chọn ảnh bìa'))
         self.thumbFileCard.clicked.connect(self.___onChooseFileCardClicked)
 
         self.titleInput.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -86,7 +79,6 @@ class LivestreamInterface(QWidget):
         self.leftLayout.addWidget(self.titleLabel)
         self.leftLayout.addWidget(self.titleInput)
         self.leftLayout.addWidget(self.use_webcam_checkbox)
-        self.leftLayout.addWidget(self.titleLabelThumb)
         self.leftLayout.addWidget(self.thumbFileCard)
 
         self.leftLayout.setAlignment(Qt.AlignLeft)
@@ -121,13 +113,13 @@ class LivestreamInterface(QWidget):
 
         self.setLayout(self.layout)
 
-    def setVideoModel(self, video=None):
-        if video is None:
-            return
+        Communication.instance.displayVideoStreamingPlayer.connect(self.setVideoModel)
 
-        self.mediaPlayer.setMedia(QMediaContent(QUrl(video.url)))
+    def setVideoModel(self, video=None):
+        self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(self.m3u8_file)))
         self.playBar.setMediaPlayer(self.mediaPlayer)
         self.mediaPlayer.setPlaybackRate(1.0)
+        self.playBar.play()
 
     def ___onChooseFileCardClicked(self):
         file_dialog = QFileDialog(self)
@@ -146,12 +138,18 @@ class LivestreamInterface(QWidget):
         title = self.titleInput.text()
         thumbnail = self.thumbnail_file_path  # Sử dụng đường dẫn của file thumbnail đã lưu
         video = Video.init_stream_video(title, 5, thumbnail)
-        print("Video link: ", video.url)
 
         if video:
-            self.setVideoModel(video)
             # Bắt đầu quay video
             self.ffmpeg_command = [
+                # Cua phuc
+                # "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":1",
+                # "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:1",
+                # "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
+                # "-hls_list_size", "4", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file,
+                # self.m3u8_file
+
+                # Cua duy
                 "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":0",
                 "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:0",
                 "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
@@ -201,6 +199,7 @@ class UploadThread(threading.Thread):
         self.m3u8_path = m3u8_path
         self.index = 0
         self.running = True
+        self.flag = True
 
     def run(self):
         while self.running:
@@ -209,10 +208,16 @@ class UploadThread(threading.Thread):
             if not os.path.isfile(upload_file):
                 time.sleep(1)
                 continue
+
+            if self.flag:
+                self.flag = False
+                Communication.instance.displayVideoStreamingPlayer.emit()
+
             with open(upload_file, "rb") as f:
                 with open(self.m3u8_path, "rb") as m3u8:
                     Video.upload_stream(self.video_id, f, m3u8)
             self.index += 1
+
             time.sleep(1)
 
     # def calculate_duration(self, file_path):

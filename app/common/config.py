@@ -56,6 +56,7 @@ class Config(QConfig):
     # software update
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
 
+    audio_level = RangeConfigItem("Audio", "Level", 50, RangeValidator(0, 100))
 
 YEAR = 2024
 AUTHOR = "huykhaduy"

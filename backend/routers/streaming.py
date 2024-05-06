@@ -43,17 +43,19 @@ def init_stream_video(title: Annotated[str, Form()], max_duration: Annotated[flo
 
 # Hàm cập nhật video mới
 @router.post("/update/{video_id}")
-def upload_stream(video_id: str, file: Optional[UploadFile], m3u8_file: UploadFile):
+def upload_stream(video_id: str, m3u8_file: UploadFile = None, file: Optional[UploadFile] = None):
     try:
         if file:
             uploadSingleFile(file.file, f"stream/{video_id}/{file.filename}")
             uploadSingleFile(m3u8_file.file, f"stream/{video_id}/index.m3u8")
+            return ResponseSuccess(message="Upload successfully!")
         else:
             uploadSingleFile(m3u8_file.file, f"stream/{video_id}/index.m3u8")
             video = Video.get(video_id)
-            video.is_hidden = True
-            Video.update(video)
-        return ResponseSuccess(message="Upload successfully!")
+            videoModel = Video.from_dict(video)
+            videoModel.is_hidden = True
+            Video.update(videoModel)
+            return ResponseSuccess(message="End successfully!")
     except Exception as e:
         return ResponseError(message=str(e))
 

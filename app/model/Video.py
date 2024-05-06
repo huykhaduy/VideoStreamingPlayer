@@ -83,13 +83,33 @@ class Video:
 
     @staticmethod
     def upload_stream(video_id, file, mu3u8_file):
-        files = {'file': file, 'm3u8_file': mu3u8_file}
+        if file is not None:
+            files = {'file': file, 'm3u8_file': mu3u8_file}
+        else:
+            files = {'m3u8_file': mu3u8_file}
         api = APIInterceptor()
         res = api.post(f"stream/update/{video_id}", files=files)
         if 200 <= res.status_code < 300:
+            print(res.text)
             print("Success! Status code:", res.status_code)
         elif 400 <= res.status_code < 500:
             print("Client error! Status code:", res.status_code)
+            print(res.text)
+        else:
+            print("Other status code:", res.status_code)
+
+    @staticmethod
+    def upload_video(title, description, file, thumbnail):
+        api = APIInterceptor()
+        files = {'file': open(file, 'rb'), 'thumbnail': open(thumbnail, 'rb')}
+        data = {'title': title, 'description': description}
+        res = api.post("video/create", data=data, files=files)
+        if 200 <= res.status_code < 300:
+            print(res.text)
+            print("Success! Status code:", res.status_code)
+        elif 400 <= res.status_code < 500:
+            print("Client error! Status code:", res.status_code)
+            print(res.text)
         else:
             print("Other status code:", res.status_code)
 

@@ -9,3 +9,4 @@ class Communication(QObject):
     downloadStarted = pyqtSignal(str)
     openVideoChanged = pyqtSignal(str)
     addVideoToQueue = pyqtSignal(str, str, str)
+    displayVideoStreamingPlayer = pyqtSignal()
