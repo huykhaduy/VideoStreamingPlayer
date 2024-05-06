@@ -143,17 +143,17 @@ class LivestreamInterface(QWidget):
             # Bắt đầu quay video
             self.ffmpeg_command = [
                 # Cua phuc
-                # "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":1",
-                # "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:1",
-                # "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
-                # "-hls_list_size", "4", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file,
-                # self.m3u8_file
+                "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":1",
+                "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:1",
+                "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
+                "-hls_list_size", "6", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file,
+                self.m3u8_file
 
                 # Cua duy
-                "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":0",
-                "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:0",
-                "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
-                "-hls_list_size", "4", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file, self.m3u8_file
+                # "ffmpeg", "-y", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":0",
+                # "-f", "video4linux2", "-i", "/dev/video0", "-f", "alsa", "-ac", "2", "-i", "hw:0",
+                # "-c:v", "libx264", "-g", "60", "-keyint_min", "2", "-hls_time", "2", "-hls_segment_type", "mpegts",
+                # "-hls_list_size", "4", "-hls_flags", "delete_segments", "-hls_segment_filename", self.output_file, self.m3u8_file
             ]
 
             if self.use_webcam_checkbox.isChecked():
@@ -206,7 +206,8 @@ class UploadThread(threading.Thread):
             # Check index file exists
             upload_file = self.file_path % self.index
             if not os.path.isfile(upload_file):
-                time.sleep(1)
+                print("Khong tim thay "+ upload_file)
+                time.sleep(0.1)
                 continue
 
             if self.flag:
@@ -218,11 +219,9 @@ class UploadThread(threading.Thread):
                     Video.upload_stream(self.video_id, f, m3u8)
             self.index += 1
 
-            time.sleep(1)
-
     # def calculate_duration(self, file_path):
     #     command = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-    #                '-of', 'default=noprint_wrappers=1:nokey=1', file_path]
+    #                '-of', 'default=noprint_wrappers=1:nokey=1', file_path]    
     #     try:
     #         output = subprocess.check_output(command, stderr=subprocess.STDOUT)
     #         duration = float(output)
